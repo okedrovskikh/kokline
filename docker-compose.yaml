@@ -1,0 +1,27 @@
+version: '3.7'
+
+networks:
+  bff-net:
+    driver: bridge
+  db-net:
+    driver: bridge
+
+services:
+  backend:
+    build: ./backend
+    container_name: back
+    restart: on-failure
+    ports:
+      - 8080:8080
+    networks:
+      - bff-net
+      - db-net
+
+  postgres:
+    image: postgis/postgis:15-3.3-alpine
+    container_name: postgres
+    restart: on-failure
+    ports:
+      - 5433:5432
+    networks:
+      - db-net
