@@ -5,6 +5,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kek.team.kokline.configurations.configureRouting
 import kek.team.kokline.configurations.configureSerialization
+import kek.team.kokline.configurations.configureSockets
 
 
 fun main() {
@@ -15,4 +16,5 @@ fun main() {
 fun Application.module() {
     configureRouting()
     configureSerialization()
+    configureSockets()
 }
