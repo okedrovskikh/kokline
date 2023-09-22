@@ -4,7 +4,7 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
-import kek.team.kokline.routing.configureRouting
+import kek.team.kokline.configurations.configureRouting
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
