@@ -3,11 +3,16 @@ package kek.team.kokline.factories
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.config.ApplicationConfig
-import io.ktor.util.logging.KtorSimpleLogger
+import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.sql.Connection
 
 object DatabaseFactory {
     private lateinit var hikariPool: HikariDataSource
+    private lateinit var database: Database
+
+    val connection: Connection get() = hikariPool.connection
 
     fun init(config: ApplicationConfig) {
         if (::hikariPool.isInitialized) error("Hikari pool is initialized")
@@ -18,14 +23,13 @@ object DatabaseFactory {
         val password = config.property("datasource.password").getString()
 
         hikariPool = hikariDataSource(url, driver, user, password)
+        database = Database.connect(hikariPool)
     }
 
     fun close() {
         hikariPool.close()
     }
-
-    val connection: Connection get() = hikariPool.connection
-
+    
     private fun hikariDataSource(
         url: String,
         driver: String,
@@ -42,3 +46,5 @@ object DatabaseFactory {
         validate()
     })
 }
+
+suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }

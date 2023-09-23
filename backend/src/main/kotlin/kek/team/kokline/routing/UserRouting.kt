@@ -9,6 +9,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import kek.team.kokline.models.User
 import kek.team.kokline.repositories.UserRepository
@@ -17,6 +18,11 @@ private val repository = UserRepository()
 
 fun Route.userRouting() {
     route("/user") {
+        post("") {
+            val user = call.receive<User>()
+            repository.create(user)
+            call.respond(HttpStatusCode.Created, user)
+        }
         get("") {
             call.respond(repository.findAll())
         }
@@ -25,23 +31,23 @@ fun Route.userRouting() {
                 text = "Missing or invalid id",
                 status = HttpStatusCode.BadRequest
             )
-            val user = repository.findUser(id) ?: return@get call.respondText(
+            val user = repository.findById(id) ?: return@get call.respondText(
                 text = "No user with id $id",
                 status = HttpStatusCode.NotFound
             )
             call.respond(user)
         }
-        post("") {
+        put("") {
             val user = call.receive<User>()
-            repository.createUser(user)
-            call.respond(HttpStatusCode.Created)
+            val updated = repository.edit(user)
+            call.respond(if (updated) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
         }
         delete("{id?}") {
             val id = call.parameters["id"]?.toLongOrNull() ?: return@delete call.respondText(
                 text = "Missing or invalid id",
                 status = HttpStatusCode.BadRequest
             )
-            val deleted = repository.delete(id)
+            val deleted = repository.deleteById(id)
             call.respond(if (deleted) HttpStatusCode.NotFound else HttpStatusCode.Accepted)
         }
     }
