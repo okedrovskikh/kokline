@@ -18,9 +18,9 @@ subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
 
     dependencies {
-        implementation("ch.qos.logback:logback-classic:$logbackVersion")
+        implementation(group = "ch.qos.logback", name = "logback-classic", version = logbackVersion)
 
-        testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
+        testImplementation(group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version = kotlinVersion)
         testImplementation(group = "io.kotest", name = "kotest-assertions-core", version = "4.6.2")
     }
 }

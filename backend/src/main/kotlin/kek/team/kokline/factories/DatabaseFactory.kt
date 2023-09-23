@@ -3,27 +3,28 @@ package kek.team.kokline.factories
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.config.ApplicationConfig
+import io.ktor.util.logging.KtorSimpleLogger
 import java.sql.Connection
 
 object DatabaseFactory {
-    private lateinit var hikariPull: HikariDataSource
+    private lateinit var hikariPool: HikariDataSource
 
     fun init(config: ApplicationConfig) {
-        if (::hikariPull.isInitialized) error("Hikari pool is initialized")
+        if (::hikariPool.isInitialized) error("Hikari pool is initialized")
 
         val driver = config.property("datasource.driver").getString()
         val url = config.property("datasource.url").getString()
         val user = config.property("datasource.user").getString()
         val password = config.property("datasource.password").getString()
 
-        hikariPull = hikariDataSource(url, driver, user, password)
+        hikariPool = hikariDataSource(url, driver, user, password)
     }
 
     fun close() {
-        hikariPull.close()
+        hikariPool.close()
     }
 
-    val connection: Connection = hikariPull.connection
+    val connection: Connection get() = hikariPool.connection
 
     private fun hikariDataSource(
         url: String,
