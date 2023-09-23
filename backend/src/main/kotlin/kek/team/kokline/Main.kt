@@ -1,11 +1,13 @@
 package kek.team.kokline
 
 import io.ktor.server.application.Application
+import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kek.team.kokline.configurations.configureRouting
 import kek.team.kokline.configurations.configureSerialization
 import kek.team.kokline.configurations.configureSockets
+import kek.team.kokline.plugins.hikariPoolPlugin
 
 
 fun main() {
@@ -14,7 +16,8 @@ fun main() {
 }
 
 fun Application.module() {
-    configureRouting()
+    install(hikariPoolPlugin)
     configureSerialization()
     configureSockets()
+    configureRouting()
 }
