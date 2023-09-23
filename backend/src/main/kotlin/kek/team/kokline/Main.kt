@@ -13,9 +13,7 @@ fun main(args: Array<String>) {
     EngineMain.main(args)
 }
 
-/**
- * Надо настроить падение при ошибках инициализации плагинов
- */
+// Надо настроить падение при ошибках инициализации плагинов
 fun Application.module() {
     install(hikariPoolPlugin)
     install(liquibasePlugin)

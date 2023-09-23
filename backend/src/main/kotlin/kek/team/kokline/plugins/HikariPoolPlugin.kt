@@ -8,9 +8,7 @@ import io.ktor.server.application.log
 import kek.team.kokline.factories.DatabaseFactory
 
 val hikariPoolPlugin = createApplicationPlugin("hikari-pool-plugin") {
-    /**
-     * Если вынести из on, то приложение упадет
-     */
+    // Если вынести из on, то приложение упадет
     on(MonitoringEvent(ApplicationStarted)) {
         try {
             DatabaseFactory.init(it.environment.config)

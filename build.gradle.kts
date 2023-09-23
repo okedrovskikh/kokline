@@ -1,3 +1,5 @@
+import org.gradle.internal.impldep.org.apache.maven.artifact.repository.metadata.Plugin
+
 val kotlinVersion: String by project
 val logbackVersion: String by project
 

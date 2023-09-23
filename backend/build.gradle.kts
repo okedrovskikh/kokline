@@ -13,7 +13,7 @@ plugins {
 }
 
 application {
-    mainClass = "kek.team.kokline.Main"
+    mainClass = "kek.team.kokline.MainKt"
 }
 
 dependencies {
