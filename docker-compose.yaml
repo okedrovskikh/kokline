@@ -1,0 +1,43 @@
+version: '3.8'
+
+networks:
+  bff-net:
+    driver: bridge
+  db-net:
+    driver: bridge
+
+services:
+  backend:
+    build:
+      context: ./
+      dockerfile: ./backend/Dockerfile
+    container_name: backend
+    restart: on-failure
+    environment:
+      POSTGRES_URL: jdbc:postgresql://localhost:5432/kokline
+    ports:
+      - 8080:8080
+    networks:
+      - bff-net
+      - db-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgis/postgis:15-3.3-alpine
+    container_name: postgres
+    restart: on-failure
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: kokline
+      POSTGRES_PASSWORD: 123
+    ports:
+      - 5433:5432
+    networks:
+      - db-net
+    healthcheck:
+      test: pg_isready -U postgres
+      interval: 10s
+      timeout: 5s
+      retries: 10

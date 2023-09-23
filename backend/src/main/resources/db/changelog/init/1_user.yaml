@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      author: okedrovskikh
+      id: add_kokline_user_table
+      changes:
+        - createTable:
+            tableName: kokline_user
+            columns:
+              - column:
+                  name: id
+                  type: bigserial
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: nickname
+                  type: varchar
+                  constraints:
+                    unique: true
