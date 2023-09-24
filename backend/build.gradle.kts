@@ -17,6 +17,8 @@ application {
 }
 
 dependencies {
+    implementation(project(":library"))
+
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-sessions-jvm")
@@ -32,5 +34,6 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql:$postgresVersion")
 
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
 }

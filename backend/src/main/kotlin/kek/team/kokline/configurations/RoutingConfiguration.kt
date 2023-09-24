@@ -1,6 +1,7 @@
 package kek.team.kokline.configurations
 
 import io.ktor.server.application.Application
+import io.ktor.server.application.application
 import io.ktor.server.application.call
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
@@ -12,8 +13,8 @@ import kek.team.kokline.routing.userRouting
 
 fun Application.configureRouting() {
     routing {
-        get("/") {
-            call.respond("Hello world")
+        get("/health") {
+            call.respond(mapOf("Status" to "Ok"))
         }
         userRouting()
         webSocket("/chat") {
