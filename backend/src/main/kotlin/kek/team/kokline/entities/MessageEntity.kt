@@ -1,11 +1,21 @@
 package kek.team.kokline.entities
 
+import org.jetbrains.exposed.dao.LongEntity
+import org.jetbrains.exposed.dao.LongEntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Table
 
-object MessageEntity : Table("message") {
-    val id: Column<Long> = long("id").autoIncrement()
-    val chatId: Column<Long> = long("chat_id").references(ChatEntity.id)
+object MessageTable : LongIdTable("message") {
+    val chat: Column<EntityID<Long>> = reference("chat_id", ChatTable)
 
-    override val primaryKey: PrimaryKey = PrimaryKey(id)
+    // TODO переделать на jsonb, чтоб можно было хранить любой содержимое сообщения
+    val payload: Column<String> = text("payload")
+}
+
+class MessageEntity(id: EntityID<Long>) : LongEntity(id) {
+    var chat by ChatEntity referencedOn MessageTable.chat
+    var payload by MessageTable.payload
+
+    companion object : LongEntityClass<MessageEntity>(MessageTable)
 }

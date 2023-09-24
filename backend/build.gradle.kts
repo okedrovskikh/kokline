@@ -29,7 +29,6 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm")
     testImplementation("io.ktor:ktor-server-tests-jvm")
 
-    implementation("org.liquibase:liquibase-core:4.23.2")
     implementation("com.zaxxer:HikariCP:$hikaricpVersion")
     runtimeOnly("org.postgresql:postgresql:$postgresVersion")
 

@@ -5,15 +5,11 @@ import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.config.ApplicationConfig
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import java.sql.Connection
 
 object DatabaseFactory {
     private lateinit var hikariPool: HikariDataSource
     private lateinit var database: Database
-
-    val connection: Connection get() = hikariPool.connection
 
     fun init(config: ApplicationConfig) {
         if (::hikariPool.isInitialized) error("Hikari pool is initialized")
@@ -30,12 +26,12 @@ object DatabaseFactory {
     fun close() {
         hikariPool.close()
     }
-    
+
     private fun hikariDataSource(
         url: String,
         driver: String,
         user: String,
-        password: String
+        password: String,
     ) = HikariDataSource(HikariConfig().apply {
         driverClassName = driver
         jdbcUrl = url

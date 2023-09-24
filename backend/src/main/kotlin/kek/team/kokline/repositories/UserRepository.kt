@@ -17,9 +17,7 @@ class UserRepository {
 
     suspend fun findAll(): List<User> = dbQuery { UserEntity.all() }.map { User(it.id.value, it.nickname) }
 
-    suspend fun findById(id: Long): User? = dbQuery {
-        UserEntity.find { UserTable.id eq id }.singleOrNull()?.let { User(it.id.value, it.nickname) }
-    }
+    suspend fun findById(id: Long): User? = dbQuery { UserEntity.findById(id)?.let { User(it.id.value, it.nickname) } }
 
     suspend fun edit(user: User): Boolean = dbQuery {
         UserTable.update({ UserTable.id eq requireNotNull(user.id) }) { it[nickname] = user.nickname } > 0

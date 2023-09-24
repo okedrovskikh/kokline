@@ -7,16 +7,14 @@ import kek.team.kokline.configurations.configureRouting
 import kek.team.kokline.configurations.configureSerialization
 import kek.team.kokline.configurations.configureSockets
 import kek.team.kokline.plugins.hikariPoolPlugin
-import kek.team.kokline.plugins.liquibasePlugin
+import kek.team.kokline.plugins.migrations
 
-fun main(args: Array<String>) {
-    EngineMain.main(args)
-}
+fun main(args: Array<String>) = EngineMain.main(args)
 
 // Надо настроить падение при ошибках инициализации плагинов
 fun Application.module() {
     install(hikariPoolPlugin)
-    install(liquibasePlugin)
+    install(migrations)
     configureSerialization()
     configureSockets()
     configureRouting()

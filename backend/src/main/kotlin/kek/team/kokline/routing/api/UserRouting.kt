@@ -1,4 +1,4 @@
-package kek.team.kokline.routing
+package kek.team.kokline.routing.api
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
@@ -17,7 +17,7 @@ import kek.team.kokline.repositories.UserRepository
 private val repository = UserRepository()
 
 fun Route.userRouting() {
-    route("/user") {
+    route("/users") {
         post("") {
             val user = call.receive<User>()
             repository.create(user)
