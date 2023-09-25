@@ -11,10 +11,12 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
+import kek.team.kokline.mappers.UserMapper
 import kek.team.kokline.models.User
 import kek.team.kokline.repositories.UserRepository
 
-private val repository = UserRepository()
+private val mapper = UserMapper()
+private val repository = UserRepository(mapper)
 
 fun Route.userRouting() {
     route("/users") {

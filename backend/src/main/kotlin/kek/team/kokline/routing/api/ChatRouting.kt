@@ -6,9 +6,11 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
+import kek.team.kokline.mappers.ChatMapper
 import kek.team.kokline.repositories.ChatRepository
 
-private val repository = ChatRepository()
+private val mapper = ChatMapper()
+private val repository = ChatRepository(mapper)
 
 fun Route.chatRouting() {
     route("/chats") {

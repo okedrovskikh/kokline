@@ -7,4 +7,7 @@ fun Route.webSocketRouting() {
     route("/chat") {
         chatRouting()
     }
+    route("/notifier") {
+        notifierRouting()
+    }
 }

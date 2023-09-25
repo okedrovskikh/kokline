@@ -1,4 +1,7 @@
 package kek.team.kokline.repositories
 
-class ChatRepository {
+import kek.team.kokline.mappers.ChatMapper
+
+class ChatRepository(private val mapper: ChatMapper) {
+
 }
