@@ -5,6 +5,6 @@ import io.ktor.server.websocket.webSocket
 
 fun Route.notifierRouting() {
     webSocket("") {
-
+        // надо как нить пулить сообщения новые сообщения из базы и отправлять пользователям
     }
 }

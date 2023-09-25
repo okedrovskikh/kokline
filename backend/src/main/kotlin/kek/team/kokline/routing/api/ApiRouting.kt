@@ -8,6 +8,7 @@ fun Route.apiRouting() {
         route("/v1") {
             userRouting()
             chatRouting()
+            messageRouting()
         }
     }
 }

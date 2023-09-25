@@ -2,6 +2,7 @@ package kek.team.kokline
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.EngineMain
 import kek.team.kokline.configurations.configureRouting
 import kek.team.kokline.configurations.configureSerialization

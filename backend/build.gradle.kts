@@ -27,6 +27,7 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-serialization-jackson-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
+    implementation("io.ktor:ktor-server-openapi")
     testImplementation("io.ktor:ktor-server-tests-jvm")
 
     implementation("com.zaxxer:HikariCP:$hikaricpVersion")
