@@ -14,16 +14,20 @@ import io.ktor.server.routing.route
 import kek.team.kokline.mappers.MessageMapper
 import kek.team.kokline.models.MessageCreateRequest
 import kek.team.kokline.models.MessageEditRequest
+import kek.team.kokline.repositories.IncomingMessageRepository
 import kek.team.kokline.repositories.MessageRepository
+import kek.team.kokline.service.MessageService
 
 private val mapper = MessageMapper()
-private val messageRepository = MessageRepository(mapper)
+private val messageRepository = MessageRepository()
+private val incomingMessageRepository = IncomingMessageRepository()
+private val service = MessageService(mapper, messageRepository, incomingMessageRepository)
 
 fun Route.messageRouting() {
     route("/messages") {
         post("") {
-            val messageCreateRequest = call.receive<MessageCreateRequest>()
-            val message = messageRepository.create(messageCreateRequest)
+            val request = call.receive<MessageCreateRequest>()
+            val message = service.create(request)
             call.respond(HttpStatusCode.Created, message)
         }
         get("/fromChat/{id?}") {
@@ -31,7 +35,7 @@ fun Route.messageRouting() {
                 text = "Missing or invalid id",
                 status = HttpStatusCode.BadRequest
             )
-            val messages = messageRepository.findAllByChatId(id)
+            val messages = service.findAllByChatId(id)
             call.respond(messages)
         }
         get("{id?}") {
@@ -39,23 +43,28 @@ fun Route.messageRouting() {
                 text = "Missing or invalid id",
                 status = HttpStatusCode.BadRequest
             )
-            val message = messageRepository.findById(id) ?: return@get call.respondText(
+            val message = service.findById(id) ?: return@get call.respondText(
                 text = "No message with id $id",
                 status = HttpStatusCode.NotFound
             )
             call.respond(message)
         }
         put("") {
-            val editRequest = call.receive<MessageEditRequest>()
-            val updated = messageRepository.edit(editRequest)
-            call.respond(if (updated) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
+            val request = call.receive<MessageEditRequest>()
+            val message = service.edit(request)
+
+            if (message == null) {
+                call.respond(HttpStatusCode.NotFound, "No message with id ${request.id}")
+            } else {
+                call.respond(HttpStatusCode.Accepted, message)
+            }
         }
         delete("{id?}") {
             val id = call.parameters["id"]?.toLongOrNull() ?: return@delete call.respondText(
                 text = "Missing or invalid id",
                 status = HttpStatusCode.BadRequest
             )
-            val deleted = messageRepository.deleteById(id)
+            val deleted = service.deleteById(id)
             call.respond(if (deleted) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
         }
     }
