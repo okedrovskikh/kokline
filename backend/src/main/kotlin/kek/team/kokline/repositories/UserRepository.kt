@@ -14,9 +14,7 @@ import org.jetbrains.exposed.sql.update
 
 class UserRepository(private val mapper: UserMapper) {
 
-    suspend fun create(user: UserCreateRequest): User {
-        return dbQuery { UserEntity.new { nickname = user.nickname } }.let(mapper::mapToUser)
-    }
+    suspend fun create(user: UserCreateRequest): User = dbQuery { UserEntity.new { nickname = user.nickname } }.let(mapper::mapToUser)
 
     suspend fun findAll(): List<User> = dbQuery { UserEntity.all() }.map(mapper::mapToUser)
 
