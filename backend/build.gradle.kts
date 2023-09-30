@@ -17,6 +17,8 @@ application {
 }
 
 dependencies {
+    implementation(project(":library"))
+
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-sessions-jvm")
@@ -25,12 +27,15 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-serialization-jackson-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
+    implementation("io.ktor:ktor-server-openapi")
     testImplementation("io.ktor:ktor-server-tests-jvm")
 
-    implementation("org.liquibase:liquibase-core:4.23.2")
     implementation("com.zaxxer:HikariCP:$hikaricpVersion")
     runtimeOnly("org.postgresql:postgresql:$postgresVersion")
 
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
 }

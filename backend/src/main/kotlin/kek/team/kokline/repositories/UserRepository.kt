@@ -1,34 +1,30 @@
 package kek.team.kokline.repositories
 
 import kek.team.kokline.entities.UserEntity
+import kek.team.kokline.entities.UserTable
 import kek.team.kokline.factories.dbQuery
+import kek.team.kokline.mappers.UserMapper
 import kek.team.kokline.models.User
-import org.jetbrains.exposed.sql.ResultRow
+import kek.team.kokline.models.UserCreateRequest
+import kek.team.kokline.models.UserEditRequest
+import kek.team.kokline.models.UserWithChats
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.update
 
-class UserRepository {
+class UserRepository(private val mapper: UserMapper) {
 
-    suspend fun create(user: User): User {
-        val statement = dbQuery { UserEntity.insert { it[nickname] = user.nickname } }
-        return statement.resultedValues?.singleOrNull()?.let(::resultRowToModel) ?: error("Cannot create user")
+    suspend fun create(user: UserCreateRequest): User {
+        return dbQuery { UserEntity.new { nickname = user.nickname } }.let(mapper::mapToUser)
     }
 
-    suspend fun findAll(): List<User> = dbQuery { UserEntity.selectAll().map(::resultRowToModel) }
+    suspend fun findAll(): List<User> = dbQuery { UserEntity.all() }.map(mapper::mapToUser)
 
-    suspend fun findById(id: Long): User? = dbQuery {
-        UserEntity.select { UserEntity.id eq id }.map(::resultRowToModel).singleOrNull()
-    }
+    suspend fun findByIdWithChats(id: Long): UserWithChats? = dbQuery { UserEntity.findById(id) }?.let(mapper::mapToUserWithChats)
 
-    suspend fun edit(user: User): Boolean = dbQuery {
-        UserEntity.update({ UserEntity.id eq requireNotNull(user.id) }) { it[nickname] = user.nickname } > 0
-    }
+    suspend fun edit(user: UserEditRequest): Boolean = dbQuery {
+        UserTable.update({ UserTable.id eq requireNotNull(user.id) }) { it[nickname] = user.nickname }
+    } > 0
 
-    suspend fun deleteById(id: Long): Boolean = dbQuery { UserEntity.deleteWhere { UserEntity.id eq id } > 0 }
-
-    private fun resultRowToModel(row: ResultRow): User = User(row[UserEntity.id], row[UserEntity.nickname])
+    suspend fun deleteById(id: Long): Boolean = dbQuery { UserTable.deleteWhere { UserTable.id eq id } } > 0
 }

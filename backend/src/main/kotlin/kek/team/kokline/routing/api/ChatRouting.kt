@@ -1,4 +1,4 @@
-package kek.team.kokline.routing
+package kek.team.kokline.routing.api
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
@@ -11,35 +11,36 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
-import kek.team.kokline.models.User
-import kek.team.kokline.repositories.UserRepository
+import kek.team.kokline.mappers.ChatMapper
+import kek.team.kokline.models.Chat
+import kek.team.kokline.models.ChatCreateRequest
+import kek.team.kokline.models.ChatEditRequest
+import kek.team.kokline.repositories.ChatRepository
 
-private val repository = UserRepository()
+private val mapper = ChatMapper()
+val chatRepository = ChatRepository(mapper)
 
-fun Route.userRouting() {
-    route("/user") {
+fun Route.chatRouting() {
+    route("/chats") {
         post("") {
-            val user = call.receive<User>()
-            repository.create(user)
-            call.respond(HttpStatusCode.Created, user)
-        }
-        get("") {
-            call.respond(repository.findAll())
+            val chatCreateRequest = call.receive<ChatCreateRequest>()
+            val chat = chatRepository.create(chatCreateRequest)
+            call.respond(HttpStatusCode.Created, chat)
         }
         get("{id?}") {
             val id = call.parameters["id"]?.toLongOrNull() ?: return@get call.respondText(
                 text = "Missing or invalid id",
                 status = HttpStatusCode.BadRequest
             )
-            val user = repository.findById(id) ?: return@get call.respondText(
-                text = "No user with id $id",
+            val chat = chatRepository.findById(id) ?: return@get call.respondText(
+                text = "No chat with id $id",
                 status = HttpStatusCode.NotFound
             )
-            call.respond(user)
+            call.respond(chat)
         }
         put("") {
-            val user = call.receive<User>()
-            val updated = repository.edit(user)
+            val chat = call.receive<ChatEditRequest>()
+            val updated = chatRepository.edit(chat)
             call.respond(if (updated) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
         }
         delete("{id?}") {
@@ -47,8 +48,8 @@ fun Route.userRouting() {
                 text = "Missing or invalid id",
                 status = HttpStatusCode.BadRequest
             )
-            val deleted = repository.deleteById(id)
-            call.respond(if (deleted) HttpStatusCode.NotFound else HttpStatusCode.Accepted)
+            val deleted = chatRepository.deleteById(id)
+            call.respond(if (deleted) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
         }
     }
 }
