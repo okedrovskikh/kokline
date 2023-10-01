@@ -1,7 +1,7 @@
-package kek.team.kokline.repositories
+package kek.team.kokline.persistence.repositories
 
-import kek.team.kokline.entities.IncomingMessageEntity
-import kek.team.kokline.entities.MessageEntity
+import kek.team.kokline.persistence.entities.IncomingMessageEntity
+import kek.team.kokline.persistence.entities.MessageEntity
 import kek.team.kokline.factories.dbQuery
 
 class IncomingMessageRepository {

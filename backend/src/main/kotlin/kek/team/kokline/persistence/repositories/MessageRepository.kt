@@ -1,9 +1,9 @@
-package kek.team.kokline.repositories
+package kek.team.kokline.persistence.repositories
 
-import kek.team.kokline.entities.ChatEntity
-import kek.team.kokline.entities.ChatTable
-import kek.team.kokline.entities.MessageEntity
-import kek.team.kokline.entities.MessageTable
+import kek.team.kokline.persistence.entities.ChatEntity
+import kek.team.kokline.persistence.entities.ChatTable
+import kek.team.kokline.persistence.entities.MessageEntity
+import kek.team.kokline.persistence.entities.MessageTable
 import kek.team.kokline.factories.dbQuery
 import kek.team.kokline.models.MessageCreateRequest
 import kek.team.kokline.models.MessageEditRequest

@@ -1,4 +1,4 @@
-package kek.team.kokline.plugins
+package kek.team.kokline.persistence.plugins
 
 import io.ktor.server.application.ApplicationStarted
 import io.ktor.server.application.ApplicationStopped

@@ -16,6 +16,6 @@ fun Application.configureRouting() {
         }
         apiRouting()
         webSocketRouting()
-        //openAPI(path="openapi", swaggerFile = "openapi/documentation.yaml")
+        openAPI(path="openapi", swaggerFile = "openapi/documentation.yaml")
     }
 }

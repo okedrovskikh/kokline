@@ -14,8 +14,8 @@ import io.ktor.server.routing.route
 import kek.team.kokline.mappers.MessageMapper
 import kek.team.kokline.models.MessageCreateRequest
 import kek.team.kokline.models.MessageEditRequest
-import kek.team.kokline.repositories.IncomingMessageRepository
-import kek.team.kokline.repositories.MessageRepository
+import kek.team.kokline.persistence.repositories.IncomingMessageRepository
+import kek.team.kokline.persistence.repositories.MessageRepository
 import kek.team.kokline.service.IncomingMessageProducer
 import kek.team.kokline.service.MessageService
 

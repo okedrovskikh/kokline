@@ -4,8 +4,8 @@ import kek.team.kokline.mappers.MessageMapper
 import kek.team.kokline.models.Message
 import kek.team.kokline.models.MessageCreateRequest
 import kek.team.kokline.models.MessageEditRequest
-import kek.team.kokline.repositories.IncomingMessageRepository
-import kek.team.kokline.repositories.MessageRepository
+import kek.team.kokline.persistence.repositories.IncomingMessageRepository
+import kek.team.kokline.persistence.repositories.MessageRepository
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 
