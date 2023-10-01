@@ -21,7 +21,7 @@ import kek.team.kokline.service.MessageService
 
 private val mapper = MessageMapper()
 private val messageRepository = MessageRepository()
-private val incomingMessageRepository = IncomingMessageRepository()
+val incomingMessageRepository = IncomingMessageRepository()
 private val producer = IncomingMessageProducer()
 private val service = MessageService(mapper, messageRepository, incomingMessageRepository, producer)
 
