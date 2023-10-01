@@ -34,7 +34,8 @@ fun Route.chatRouting() {
 
         fun processEvent(event: String): Message? = transaction {
             repository.findById(event.toLong())
-                ?.let { Message(it.id.value, it.message.payload, it.message.chat.id.value).takeIf { it.chatId == id } }
+                ?.let { Message(it.id.value, it.message.payload, it.message.chat.id.value) }
+                ?.takeIf { it.chatId == id }
         }
 
         val processor = ChatProcessorFactory.createProcessor(
