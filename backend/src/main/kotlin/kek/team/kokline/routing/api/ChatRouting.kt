@@ -11,20 +11,19 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
-import kek.team.kokline.mappers.ChatMapper
-import kek.team.kokline.models.Chat
 import kek.team.kokline.models.ChatCreateRequest
 import kek.team.kokline.models.ChatEditRequest
 import kek.team.kokline.persistence.repositories.ChatRepository
-
-private val mapper = ChatMapper()
-val chatRepository = ChatRepository(mapper)
+import org.koin.ktor.ext.inject
 
 fun Route.chatRouting() {
+
+    val repository: ChatRepository by inject<ChatRepository>()
+
     route("/chats") {
         post("") {
             val chatCreateRequest = call.receive<ChatCreateRequest>()
-            val chat = chatRepository.create(chatCreateRequest)
+            val chat = repository.create(chatCreateRequest)
             call.respond(HttpStatusCode.Created, chat)
         }
         get("{id?}") {
@@ -32,7 +31,7 @@ fun Route.chatRouting() {
                 text = "Missing or invalid id",
                 status = HttpStatusCode.BadRequest
             )
-            val chat = chatRepository.findById(id) ?: return@get call.respondText(
+            val chat = repository.findById(id) ?: return@get call.respondText(
                 text = "No chat with id $id",
                 status = HttpStatusCode.NotFound
             )
@@ -40,7 +39,7 @@ fun Route.chatRouting() {
         }
         put("") {
             val chat = call.receive<ChatEditRequest>()
-            val updated = chatRepository.edit(chat)
+            val updated = repository.edit(chat)
             call.respond(if (updated) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
         }
         delete("{id?}") {
@@ -48,7 +47,7 @@ fun Route.chatRouting() {
                 text = "Missing or invalid id",
                 status = HttpStatusCode.BadRequest
             )
-            val deleted = chatRepository.deleteById(id)
+            val deleted = repository.deleteById(id)
             call.respond(if (deleted) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
         }
     }
