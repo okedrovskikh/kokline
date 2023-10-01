@@ -7,7 +7,6 @@ import kek.team.kokline.models.MessageEditRequest
 import kek.team.kokline.persistence.repositories.IncomingMessageRepository
 import kek.team.kokline.persistence.repositories.MessageRepository
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
 
 class MessageService(
     private val mapper: MessageMapper,

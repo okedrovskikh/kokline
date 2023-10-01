@@ -4,4 +4,4 @@
 **/build
 
 # Generated openApi web pages
-/docs
+/backend/docs
