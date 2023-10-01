@@ -15,7 +15,7 @@ import kek.team.kokline.mappers.ChatMapper
 import kek.team.kokline.models.Chat
 import kek.team.kokline.models.ChatCreateRequest
 import kek.team.kokline.models.ChatEditRequest
-import kek.team.kokline.repositories.ChatRepository
+import kek.team.kokline.persistence.repositories.ChatRepository
 
 private val mapper = ChatMapper()
 val chatRepository = ChatRepository(mapper)

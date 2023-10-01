@@ -1,4 +1,4 @@
-package kek.team.kokline.entities
+package kek.team.kokline.persistence.entities
 
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.sql.Column

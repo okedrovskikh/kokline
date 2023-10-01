@@ -1,7 +1,7 @@
-package kek.team.kokline.repositories
+package kek.team.kokline.persistence.repositories
 
-import kek.team.kokline.entities.UserEntity
-import kek.team.kokline.entities.UserTable
+import kek.team.kokline.persistence.entities.UserEntity
+import kek.team.kokline.persistence.entities.UserTable
 import kek.team.kokline.factories.dbQuery
 import kek.team.kokline.mappers.UserMapper
 import kek.team.kokline.models.User

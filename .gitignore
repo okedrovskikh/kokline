@@ -3,5 +3,5 @@
 /.gradle
 **/build
 
-# Папку с генерируемыми страницами openApi
-/docs
+# Generated openApi web pages
+/backend/docs

@@ -1,6 +1,6 @@
 package kek.team.kokline.mappers
 
-import kek.team.kokline.entities.UserEntity
+import kek.team.kokline.persistence.entities.UserEntity
 import kek.team.kokline.models.User
 import kek.team.kokline.models.UserWithChats
 

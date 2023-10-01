@@ -14,7 +14,7 @@ import io.ktor.server.routing.route
 import kek.team.kokline.mappers.UserMapper
 import kek.team.kokline.models.UserCreateRequest
 import kek.team.kokline.models.UserEditRequest
-import kek.team.kokline.repositories.UserRepository
+import kek.team.kokline.persistence.repositories.UserRepository
 
 private val mapper = UserMapper()
 private val userRepository = UserRepository(mapper)

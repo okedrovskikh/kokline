@@ -135,18 +135,21 @@ paths:
               $ref: "#/components/schemas/MessageEditRequest"
         required: true
       responses:
-        "202":
-          description: "Accepted"
-          content:
-            '*/*':
-              schema:
-                type: "object"
         "404":
           description: "Not Found"
           content:
             '*/*':
               schema:
-                type: "object"
+                type: "string"
+              examples:
+                Example#1:
+                  value: ""
+        "202":
+          description: "Accepted"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Message"
   /api/v1/messages/{id}:
     delete:
       description: ""
@@ -356,13 +359,13 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/UserWithChats"
-  /chat/{id}:
+  /chat/joinChat:
     get:
       description: ""
       parameters:
       - name: "id"
-        in: "path"
-        required: true
+        in: "query"
+        required: false
         schema:
           type: "number"
       - name: "Connection"
@@ -384,15 +387,6 @@ paths:
         schema:
           type: "string"
       responses:
-        "400":
-          description: "Bad Request"
-          content:
-            text/plain:
-              schema:
-                type: "string"
-              examples:
-                Example#1:
-                  value: "Missing or invalid id"
         "101":
           description: "Switching Protocols"
           headers:

@@ -1,4 +1,4 @@
 package kek.team.kokline.service
 
-class IncomingMessagePuller {
+class BroadcastProducer {
 }

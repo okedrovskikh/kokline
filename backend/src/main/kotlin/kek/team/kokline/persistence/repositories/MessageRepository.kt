@@ -1,13 +1,14 @@
-package kek.team.kokline.repositories
+package kek.team.kokline.persistence.repositories
 
-import kek.team.kokline.entities.ChatEntity
-import kek.team.kokline.entities.ChatTable
-import kek.team.kokline.entities.MessageEntity
-import kek.team.kokline.entities.MessageTable
+import kek.team.kokline.persistence.entities.ChatEntity
+import kek.team.kokline.persistence.entities.ChatTable
+import kek.team.kokline.persistence.entities.MessageEntity
+import kek.team.kokline.persistence.entities.MessageTable
 import kek.team.kokline.factories.dbQuery
 import kek.team.kokline.models.MessageCreateRequest
 import kek.team.kokline.models.MessageEditRequest
 import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.SizedIterable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
@@ -18,7 +19,7 @@ class MessageRepository {
     suspend fun create(message: MessageCreateRequest): MessageEntity = dbQuery {
         MessageEntity.new {
             payload = message.payload
-            chat = ChatEntity(EntityID(message.chatId, ChatTable))
+            chat = ChatEntity[message.chatId]
         }
     }
 
