@@ -6,15 +6,22 @@ import kek.team.kokline.models.MessageCreateRequest
 import kek.team.kokline.models.MessageEditRequest
 import kek.team.kokline.repositories.IncomingMessageRepository
 import kek.team.kokline.repositories.MessageRepository
+import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.transaction
 
 class MessageService(
     private val mapper: MessageMapper,
     private val messageRepository: MessageRepository,
     private val incomingMessageRepository: IncomingMessageRepository,
+    private val producer: IncomingMessageProducer
 ) {
     suspend fun create(request: MessageCreateRequest): Message {
-        val entity = messageRepository.create(request)
-        incomingMessageRepository.create(entity)
+        val entity = newSuspendedTransaction {
+            val entity = messageRepository.create(request)
+            incomingMessageRepository.create(entity)
+            producer.sendEvent(entity.chat.id.value.toString())
+            entity
+        }
         return mapper.mapToModel(entity)
     }
 

@@ -16,12 +16,14 @@ import kek.team.kokline.models.MessageCreateRequest
 import kek.team.kokline.models.MessageEditRequest
 import kek.team.kokline.repositories.IncomingMessageRepository
 import kek.team.kokline.repositories.MessageRepository
+import kek.team.kokline.service.IncomingMessageProducer
 import kek.team.kokline.service.MessageService
 
 private val mapper = MessageMapper()
 private val messageRepository = MessageRepository()
 private val incomingMessageRepository = IncomingMessageRepository()
-private val service = MessageService(mapper, messageRepository, incomingMessageRepository)
+private val producer = IncomingMessageProducer()
+private val service = MessageService(mapper, messageRepository, incomingMessageRepository, producer)
 
 fun Route.messageRouting() {
     route("/messages") {
