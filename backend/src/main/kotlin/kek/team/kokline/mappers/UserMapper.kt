@@ -5,6 +5,7 @@ import kek.team.kokline.models.User
 import kek.team.kokline.models.UserWithChats
 
 class UserMapper {
+
     fun mapToUser(entity: UserEntity): User = User(entity.id.value, entity.nickname)
 
     fun mapToUserWithChats(entity: UserEntity): UserWithChats = UserWithChats(

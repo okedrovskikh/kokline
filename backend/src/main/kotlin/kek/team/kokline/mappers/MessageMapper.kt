@@ -4,6 +4,7 @@ import kek.team.kokline.persistence.entities.MessageEntity
 import kek.team.kokline.models.Message
 
 class MessageMapper {
+
     fun mapToModel(entity: MessageEntity): Message = Message(
         id = entity.id.value,
         payload = entity.payload,

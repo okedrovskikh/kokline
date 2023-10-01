@@ -9,10 +9,10 @@ import kek.team.kokline.persistence.repositories.MessageRepository
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
 class MessageService(
-    private val mapper: MessageMapper,
     private val messageRepository: MessageRepository,
     private val incomingMessageRepository: IncomingMessageRepository,
-    private val producer: IncomingMessageProducer
+    private val producer: IncomingMessageProducer,
+    private val mapper: MessageMapper
 ) {
     suspend fun create(request: MessageCreateRequest): Message {
         val entity = newSuspendedTransaction {
