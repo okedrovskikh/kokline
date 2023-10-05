@@ -12,16 +12,13 @@ class MessageService(
     private val messageRepository: MessageRepository,
     private val incomingMessageRepository: IncomingMessageRepository,
     private val producer: IncomingMessageProducer,
-    private val mapper: MessageMapper
+    private val mapper: MessageMapper,
 ) {
-    suspend fun create(request: MessageCreateRequest): Message {
-        val entity = newSuspendedTransaction {
-            val entity = messageRepository.create(request)
-            incomingMessageRepository.create(entity)
-            producer.sendEvent(entity.chat.id.value.toString())
-            entity
-        }
-        return mapper.mapToModel(entity)
+    suspend fun create(request: MessageCreateRequest): Message = newSuspendedTransaction {
+        val entity = messageRepository.create(request)
+        incomingMessageRepository.create(entity)
+        producer.sendEvent(entity.chat.id.value.toString())
+        mapper.mapToModel(entity)
     }
 
     suspend fun findAllByChatId(id: Long): List<Message> = messageRepository.findAllByChatId(id).map(mapper::mapToModel)

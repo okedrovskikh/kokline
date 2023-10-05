@@ -16,6 +16,7 @@ import kek.team.kokline.models.MessageEditRequest
 import kek.team.kokline.service.MessageService
 import org.koin.ktor.ext.inject
 
+@Deprecated("Большая часть api будет удалена и вынесена в websocket chat")
 fun Route.messageRouting() {
 
     val service: MessageService by inject<MessageService>()

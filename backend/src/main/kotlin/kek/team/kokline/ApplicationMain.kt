@@ -9,6 +9,7 @@ import kek.team.kokline.configurations.configureSerialization
 import kek.team.kokline.configurations.configureSockets
 import kek.team.kokline.persistence.plugins.hikariPoolPlugin
 import kek.team.kokline.persistence.plugins.migrations
+import kek.team.kokline.redis.plugins.redisPlugin
 
 fun main(args: Array<String>) = EngineMain.main(args)
 
@@ -16,6 +17,7 @@ fun main(args: Array<String>) = EngineMain.main(args)
 fun Application.module() {
     install(hikariPoolPlugin)
     install(migrations)
+    install(redisPlugin)
     configureKoin()
     configureSerialization()
     configureSockets()

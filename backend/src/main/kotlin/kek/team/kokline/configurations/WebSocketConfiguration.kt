@@ -1,5 +1,6 @@
 package kek.team.kokline.configurations
 
+import io.ktor.serialization.jackson.JacksonWebsocketContentConverter
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.websocket.WebSockets
@@ -13,5 +14,6 @@ fun Application.configureSockets() {
         timeout = Duration.ofSeconds(15)
         maxFrameSize = Long.MAX_VALUE
         masking = false
+        contentConverter = JacksonWebsocketContentConverter()
     }
 }

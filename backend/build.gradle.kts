@@ -6,6 +6,8 @@ val postgresVersion: String by project
 val exposedVersion: String by project
 val hikaricpVersion: String by project
 
+val jedisVersion: String by project
+
 plugins {
     kotlin("jvm")
     id("io.ktor.plugin") version "2.3.4"
@@ -40,4 +42,6 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
 
     implementation("io.insert-koin:koin-ktor:3.5.1")
+
+    implementation(group = "redis.clients", name = "jedis", version = jedisVersion)
 }

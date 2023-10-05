@@ -7,5 +7,4 @@ val serviceModule = module {
     singleOf(::MessageService)
     singleOf(::IncomingMessageProducer)
     singleOf(::IncomingMessageConsumer)
-    singleOf(::MessageProcessingService)
 }
