@@ -16,17 +16,11 @@ import kek.team.kokline.models.MessageEditRequest
 import kek.team.kokline.service.MessageService
 import org.koin.ktor.ext.inject
 
-@Deprecated("Большая часть api будет удалена и вынесена в websocket chat")
 fun Route.messageRouting() {
 
     val service: MessageService by inject<MessageService>()
 
     route("/messages") {
-        post("") {
-            val request = call.receive<MessageCreateRequest>()
-            val message = service.create(request)
-            call.respond(HttpStatusCode.Created, message)
-        }
         get("/fromChat/{id?}") {
             val id = call.parameters["id"]?.toLongOrNull() ?: return@get call.respondText(
                 text = "Missing or invalid id",

@@ -9,14 +9,16 @@ import io.ktor.utils.io.CancellationException
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.close
 import kek.team.kokline.factories.RedisFactory
-import kek.team.kokline.factories.coroutinePool
+import kek.team.kokline.coroutines.coroutinePool
 import kek.team.kokline.models.Message
-import kek.team.kokline.models.MessageCreateRequest
-import kek.team.kokline.models.MessagePayload
-import kek.team.kokline.service.MessageService
+import kek.team.kokline.models.WebSocketMessageRequest
+import kek.team.kokline.coroutines.ChatSession
+import kek.team.kokline.coroutines.ChatSessionContext
+import kek.team.kokline.service.LiveChatService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import org.koin.ktor.ext.inject
 import redis.clients.jedis.JedisPubSub
 
@@ -24,51 +26,63 @@ private const val MESSAGE_CHANNEL = "message"
 
 fun Route.chatRouting() {
 
-    val messageService: MessageService by inject<MessageService>()
     val objectMapper: ObjectMapper by inject<ObjectMapper>()
+    val liveChatService: LiveChatService by inject<LiveChatService>()
 
     webSocket("/joinChat") {
-        val id = call.request.queryParameters["id"]?.toLongOrNull() ?: return@webSocket close(
+        val chatId = call.request.queryParameters["id"]?.toLongOrNull() ?: return@webSocket close(
             CloseReason(
                 code = CloseReason.Codes.CANNOT_ACCEPT,
                 message = "Parameter chatId empty ot null"
             )
         )
+        val userId = call.request.headers["x-user-id"]?.toLongOrNull() ?: return@webSocket close(
+            CloseReason(
+                code = CloseReason.Codes.CANNOT_ACCEPT,
+                message = "No header x-user-id"
+            )
+        )
 
+        // TODO подумать как это можно вынести в отдельный класс с использованием сессии
         val pubSub = object : JedisPubSub() {
             override fun onMessage(channel: String?, message: String?) {
-                if (channel == null || message == null) {
-                    this@chatRouting.environment?.log?.error("Channel or message eq null")
-                    return
-                }
+                try {
+                    if (channel == null || message == null) {
+                        this@chatRouting.environment?.log?.error("Channel or message eq null")
+                        return
+                    }
 
-                val payload = objectMapper.readValue<Message>(message)
+                    val payload = objectMapper.readValue<Message>(message)
 
-                if (payload.chatId == id) {
-                    launch(coroutinePool) { sendSerialized(payload) }
+                    if (payload.chatId == chatId) {
+                        launch(coroutinePool) { sendSerialized(payload) }
+                    }
+                } catch (_: Throwable) {}
+            }
+        }
+
+        val publisherJob = CoroutineScope(coroutinePool + ChatSessionContext(ChatSession(chatId, userId))).launch {
+            supervisorScope {
+                for (frame in incoming) {
+                    launch {
+                        val request = objectMapper.readValue<WebSocketMessageRequest>(frame.data)
+                        liveChatService.processMessage(request)
+                    }
                 }
             }
         }
 
-        val publisherJob = CoroutineScope(coroutinePool).launch {
-            for (frame in incoming) {
-                val payload = objectMapper.readValue<MessagePayload>(frame.data)
-                val message = messageService.create(MessageCreateRequest(payload.text, id))
-                RedisFactory.jedisPool.publish(MESSAGE_CHANNEL, objectMapper.writeValueAsString(message))
-            }
-        }
-
-        val subscriberJob = CoroutineScope(coroutinePool).launch {
+        val subscriberJob = CoroutineScope(coroutinePool + ChatSessionContext(ChatSession(chatId, userId))).launch {
             RedisFactory.jedisPool.subscribe(pubSub, MESSAGE_CHANNEL)
         }
 
         closeReason.invokeOnCompletion {
             publisherJob.cancel(CancellationException("Connection closed"))
             subscriberJob.cancel(CancellationException("Connection closed"))
+            pubSub.unsubscribe()
         }
 
         closeReason.await()
-        pubSub.unsubscribe()
         listOf(publisherJob, subscriberJob).joinAll()
     }
 }

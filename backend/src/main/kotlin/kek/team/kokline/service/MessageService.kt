@@ -10,15 +10,11 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 
 class MessageService(
     private val messageRepository: MessageRepository,
-    private val incomingMessageRepository: IncomingMessageRepository,
-    private val producer: IncomingMessageProducer,
     private val mapper: MessageMapper,
 ) {
-    suspend fun create(request: MessageCreateRequest): Message = newSuspendedTransaction {
+    suspend fun create(request: MessageCreateRequest): Message {
         val entity = messageRepository.create(request)
-        incomingMessageRepository.create(entity)
-        producer.sendEvent(entity.chat.id.value.toString())
-        mapper.mapToModel(entity)
+        return mapper.mapToModel(entity)
     }
 
     suspend fun findAllByChatId(id: Long): List<Message> = messageRepository.findAllByChatId(id).map(mapper::mapToModel)
