@@ -10,11 +10,10 @@ import io.ktor.websocket.CloseReason
 import io.ktor.websocket.close
 import kek.team.kokline.factories.RedisFactory
 import kek.team.kokline.coroutines.coroutinePool
-import kek.team.kokline.models.Message
 import kek.team.kokline.models.WebSocketMessageRequest
 import kek.team.kokline.coroutines.ChatSession
 import kek.team.kokline.coroutines.ChatSessionContext
-import kek.team.kokline.service.LiveChatService
+import kek.team.kokline.service.message.MessageService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -22,12 +21,10 @@ import kotlinx.coroutines.supervisorScope
 import org.koin.ktor.ext.inject
 import redis.clients.jedis.JedisPubSub
 
-private const val MESSAGE_CHANNEL = "message"
-
 fun Route.chatRouting() {
 
     val objectMapper: ObjectMapper by inject<ObjectMapper>()
-    val liveChatService: LiveChatService by inject<LiveChatService>()
+    val messageService: MessageService by inject<MessageService>()
 
     webSocket("/joinChat") {
         val chatId = call.request.queryParameters["id"]?.toLongOrNull() ?: return@webSocket close(
@@ -45,17 +42,25 @@ fun Route.chatRouting() {
 
         // TODO подумать как это можно вынести в отдельный класс с использованием сессии
         val pubSub = object : JedisPubSub() {
-            override fun onMessage(channel: String?, message: String?) {
+            override fun onMessage(channel: String?, event: String?) {
                 try {
-                    if (channel == null || message == null) {
+                    if (channel == null || event == null) {
+                        // скорее всего этого не будет, но на всякий случай сделано
                         this@chatRouting.environment?.log?.error("Channel or message eq null")
                         return
                     }
 
-                    val payload = objectMapper.readValue<Message>(message)
+                    val ids = event.split(":")
 
-                    if (payload.chatId == chatId) {
-                        launch(coroutinePool) { sendSerialized(payload) }
+                    if (chatId == ids.first().toLong()) {
+                        launch(coroutinePool) {
+                            supervisorScope {
+                                launch {
+                                    val message = messageService.getById(ids[1].toLong())
+                                    sendSerialized(message)
+                                }
+                            }
+                        }
                     }
                 } catch (_: Throwable) {}
             }
@@ -66,14 +71,14 @@ fun Route.chatRouting() {
                 for (frame in incoming) {
                     launch {
                         val request = objectMapper.readValue<WebSocketMessageRequest>(frame.data)
-                        liveChatService.processMessage(request)
+                        messageService.create(request, chatId)
                     }
                 }
             }
         }
 
         val subscriberJob = CoroutineScope(coroutinePool + ChatSessionContext(ChatSession(chatId, userId))).launch {
-            RedisFactory.jedisPool.subscribe(pubSub, MESSAGE_CHANNEL)
+            RedisFactory.jedisPool.subscribe(pubSub, "events:chat:message:create")
         }
 
         closeReason.invokeOnCompletion {

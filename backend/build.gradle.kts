@@ -15,7 +15,7 @@ plugins {
 }
 
 application {
-    mainClass = "kek.team.kokline.MainKt"
+    mainClass = "kek.team.kokline.ApplicationMainKt"
 }
 
 dependencies {
@@ -30,6 +30,8 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-server-openapi")
+    implementation("io.ktor:ktor-server-host-common-jvm:2.3.4")
+    implementation("io.ktor:ktor-server-status-pages-jvm:2.3.4")
     testImplementation("io.ktor:ktor-server-tests-jvm")
 
     implementation("com.zaxxer:HikariCP:$hikaricpVersion")
