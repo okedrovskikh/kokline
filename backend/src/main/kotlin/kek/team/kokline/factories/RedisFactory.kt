@@ -1,7 +1,6 @@
 package kek.team.kokline.factories
 
 import io.ktor.server.config.ApplicationConfig
-import redis.clients.jedis.JedisPool
 import redis.clients.jedis.JedisPooled
 
 object RedisFactory {
