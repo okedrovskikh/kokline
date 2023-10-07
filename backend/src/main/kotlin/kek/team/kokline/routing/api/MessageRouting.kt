@@ -21,11 +21,6 @@ fun Route.messageRouting() {
     val service: MessageService by inject<MessageService>()
 
     route("/messages") {
-        post("") {
-            val request = call.receive<MessageCreateRequest>()
-            val message = service.create(request)
-            call.respond(HttpStatusCode.Created, message)
-        }
         get("/fromChat/{id?}") {
             val id = call.parameters["id"]?.toLongOrNull() ?: return@get call.respondText(
                 text = "Missing or invalid id",

@@ -1,4 +1,4 @@
-package kek.team.kokline.factories
+package kek.team.kokline.coroutines
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher

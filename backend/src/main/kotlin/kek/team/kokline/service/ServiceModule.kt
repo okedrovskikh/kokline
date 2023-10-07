@@ -5,5 +5,5 @@ import org.koin.dsl.module
 
 val serviceModule = module {
     singleOf(::MessageService)
-    singleOf(::IncomingMessageProducer)
+    singleOf(::LiveChatService)
 }

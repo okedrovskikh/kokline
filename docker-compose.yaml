@@ -1,11 +1,9 @@
 version: '3.8'
 
 networks:
-  service-network:
+  frontend-network:
     driver: bridge
-  database-network:
-    driver: bridge
-  kafka-network:
+  backend-network:
     driver: bridge
 
 services:
@@ -20,11 +18,12 @@ services:
     ports:
       - 8080:8080
     networks:
-      - service-network
-      - database-network
-      - kafka-network
+      - frontend-network
+      - backend-network
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   postgres:
@@ -38,9 +37,23 @@ services:
     ports:
       - 5433:5432
     networks:
-      - database-network
+      - backend-network
     healthcheck:
       test: pg_isready -U postgres
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7.2.1-alpine
+    container_name: redis
+    restart: on-failure
+    ports:
+      - 6379:6379
+    networks:
+      - backend-network
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
       interval: 10s
       timeout: 5s
       retries: 10
