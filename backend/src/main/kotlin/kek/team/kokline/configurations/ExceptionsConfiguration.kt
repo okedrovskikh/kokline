@@ -1,8 +1,10 @@
 package kek.team.kokline.configurations
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.InternalServerError
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondText
@@ -21,6 +23,9 @@ fun Application.configureExceptions() {
     install(StatusPages) {
         exception<InternalServerException> { call, cause ->
             call.respond(cause.httpStatusCode, mapper.mapExceptionToError(cause))
+        }
+        exception<BadRequestException> { call, cause ->
+            call.respond(HttpStatusCode.BadRequest, mapper.mapExceptionToError(cause))
         }
         exception<Throwable> { call, cause ->
             call.respondText(text = "$cause", status = InternalServerError)

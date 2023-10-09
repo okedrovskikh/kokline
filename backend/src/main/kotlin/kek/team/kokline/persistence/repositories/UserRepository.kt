@@ -18,6 +18,10 @@ class UserRepository {
 
     suspend fun findByIdWithChats(id: Long): UserEntity? = dbQuery { UserEntity.findById(id) }
 
+    fun findByCredits(credits: ByteArray): UserEntity? = UserEntity.find { UserTable.credits eq credits }.let {
+        if (it.empty()) null else it.single()
+    }
+
     suspend fun edit(id: Long, nickname: String): Boolean = dbQuery {
         val changedRows = UserTable.update({ UserTable.id eq id }) { it[UserTable.nickname] = nickname }
 

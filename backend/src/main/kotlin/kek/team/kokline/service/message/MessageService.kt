@@ -4,7 +4,7 @@ import kek.team.kokline.exceptions.NotFoundException
 import kek.team.kokline.mappers.MessageMapper
 import kek.team.kokline.models.Message
 import kek.team.kokline.models.MessageEditRequest
-import kek.team.kokline.models.WebSocketMessageRequest
+import kek.team.kokline.models.WebSocketMessageCreateRequest
 import kek.team.kokline.persistence.repositories.ChatRepository
 import kek.team.kokline.persistence.repositories.IncomingMessageRepository
 import kek.team.kokline.persistence.repositories.MessageRepository
@@ -18,7 +18,7 @@ class MessageService(
     private val mapper: MessageMapper,
 ) {
     // TODO протестировать как работают транзакции (если будет ошибка при publish откатим ли сообщение?)
-    suspend fun create(request: WebSocketMessageRequest, chatId: Long): Message = newSuspendedTransaction {
+    suspend fun create(request: WebSocketMessageCreateRequest, chatId: Long): Message = newSuspendedTransaction {
         val chat = chatRepository.findById(chatId, true) ?: throw NotFoundException("Not found chat by id: ${chatId}")
         val message = messageRepository.create(request.payload.text, chat)
         chat.users.forEach { incomingMessageRepository.create(message, it) }

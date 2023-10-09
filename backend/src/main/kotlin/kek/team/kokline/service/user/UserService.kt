@@ -7,7 +7,6 @@ import kek.team.kokline.models.UserCreateRequest
 import kek.team.kokline.models.UserEditRequest
 import kek.team.kokline.persistence.repositories.UserRepository
 import kek.team.kokline.redis.publisher.MessagePublisher
-import kek.team.kokline.redis.RedisChannels
 
 class UserService(private val repository: UserRepository, private val mapper: UserMapper) {
 
@@ -19,10 +18,10 @@ class UserService(private val repository: UserRepository, private val mapper: Us
         ?: throw NotFoundException("Not found user with id: $id")
 
     suspend fun edit(request: UserEditRequest): Boolean = repository.edit(request.id, request.nickname).also {
-        MessagePublisher.publish(request.id.toString(), RedisChannels.USER_EDIT.channelName)
+        MessagePublisher.publish(request.id.toString(), "events:user:edit")
     }
 
     suspend fun deleteById(id: Long): Boolean = repository.deleteById(id).also {
-        MessagePublisher.publish(id.toString(), RedisChannels.USER_DELETE.channelName)
+        MessagePublisher.publish(id.toString(), "events:user:delete")
     }
 }

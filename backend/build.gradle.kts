@@ -8,6 +8,8 @@ val hikaricpVersion: String by project
 
 val jedisVersion: String by project
 
+val kloggingVersion: String by project
+
 plugins {
     kotlin("jvm")
     id("io.ktor.plugin") version "2.3.4"
@@ -46,4 +48,6 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:3.5.1")
 
     implementation(group = "redis.clients", name = "jedis", version = jedisVersion)
+
+    implementation(group = "io.github.oshai", name = "kotlin-logging", version = kloggingVersion)
 }
