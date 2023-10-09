@@ -13,7 +13,7 @@ object ChatTable : LongIdTable("chat") {
 
 class ChatEntity(id: EntityID<Long>) : LongEntity(id) {
     var name: String by ChatTable.name
-    val messages: SizedIterable<MessageEntity> by MessageEntity referrersOn MessageTable.chat
+    val messages: SizedIterable<MessageEntity> by MessageEntity referrersOn MessageTable.chatId
     var users: SizedIterable<UserEntity> by UserEntity via ChatUsersTable
 
     companion object : LongEntityClass<ChatEntity>(ChatTable)

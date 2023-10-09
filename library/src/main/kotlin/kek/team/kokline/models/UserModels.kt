@@ -4,6 +4,6 @@ data class User(val id: Long, val nickname: String, val chats: List<Long>? = nul
 
 data class UserCreateRequest(val nickname: String, val credits: String)
 
-data class UserEditRequest(val id: Long, val nickname: String)
+data class UserEditRequest(val nickname: String)
 
 data class UserUpdatePasswordRequest(val password: String)

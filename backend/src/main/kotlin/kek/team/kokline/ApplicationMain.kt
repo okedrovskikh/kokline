@@ -3,6 +3,7 @@ package kek.team.kokline
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.netty.EngineMain
+import kek.team.kokline.configurations.configureAuth
 import kek.team.kokline.configurations.configureSessions
 import kek.team.kokline.configurations.configureExceptions
 import kek.team.kokline.configurations.configureKoin
@@ -22,6 +23,7 @@ fun Application.module() {
     configureKoin()
     configureExceptions()
     configureSessions()
+    configureAuth()
     configureSerialization()
     configureSockets()
     configureRouting()

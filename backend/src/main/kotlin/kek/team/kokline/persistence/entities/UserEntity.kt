@@ -5,6 +5,7 @@ import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.LazySizedCollection
 import org.jetbrains.exposed.sql.SizedIterable
 
 object UserTable : LongIdTable("kokline_user") {

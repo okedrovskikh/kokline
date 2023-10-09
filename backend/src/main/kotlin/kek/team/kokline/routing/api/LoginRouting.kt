@@ -10,9 +10,8 @@ import io.ktor.server.routing.route
 import io.ktor.server.sessions.sessions
 import kek.team.kokline.service.login.LoginService
 import kek.team.kokline.session.UserSession
+import kek.team.kokline.session.userSession
 import org.koin.ktor.ext.inject
-
-private const val userSessionName = "user-session"
 
 fun Route.loginRouting() {
 
@@ -22,11 +21,11 @@ fun Route.loginRouting() {
         post("/login") {
             val credits = call.request.headers["x-credits"] ?: throw BadRequestException("No header x-credits")
             val id = service.login(credits)
-            call.sessions.set(userSessionName, UserSession(id))
+            call.sessions.set(userSession, UserSession(id))
             call.respond(HttpStatusCode.Accepted)
         }
         post("/logout") {
-            call.sessions.clear(userSessionName)
+            call.sessions.clear(userSession)
             call.respond(HttpStatusCode.OK)
         }
     }

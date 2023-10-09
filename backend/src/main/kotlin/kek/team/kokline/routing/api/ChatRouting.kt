@@ -2,6 +2,7 @@ package kek.team.kokline.routing.api
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
+import io.ktor.server.auth.principal
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -10,10 +11,14 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
+import io.ktor.server.sessions.sessions
 import kek.team.kokline.exceptions.BadRequestException
+import kek.team.kokline.exceptions.ForbiddenException
 import kek.team.kokline.models.ChatCreateRequest
 import kek.team.kokline.models.ChatEditRequest
 import kek.team.kokline.service.chat.ChatService
+import kek.team.kokline.session.UserSession
+import kek.team.kokline.session.userSession
 import org.koin.ktor.ext.inject
 
 fun Route.chatRouting() {
@@ -22,8 +27,9 @@ fun Route.chatRouting() {
 
     route("/chats") {
         post("") {
+            val session = call.principal<UserSession>() ?: error("Not found session by id after auth")
             val chatCreateRequest = call.receive<ChatCreateRequest>()
-            val chat = service.create(chatCreateRequest)
+            val chat = service.create(session.id, chatCreateRequest)
             call.respond(HttpStatusCode.Created, chat)
         }
         get("{id?}") {

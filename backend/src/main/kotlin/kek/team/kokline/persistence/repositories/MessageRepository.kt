@@ -4,7 +4,6 @@ import kek.team.kokline.persistence.entities.ChatEntity
 import kek.team.kokline.persistence.entities.MessageEntity
 import kek.team.kokline.persistence.entities.MessageTable
 import kek.team.kokline.factories.dbQuery
-import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.SizedIterable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
@@ -20,7 +19,7 @@ class MessageRepository {
     }
 
     suspend fun findAllByChatId(id: Long): SizedIterable<MessageEntity> =
-        dbQuery { MessageEntity.find { MessageTable.chat eq id } }
+        dbQuery { MessageEntity.find { MessageTable.chatId eq id } }
 
     suspend fun findById(id: Long): MessageEntity? = dbQuery {
         val entity = MessageEntity.findById(id)
