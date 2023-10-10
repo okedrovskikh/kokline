@@ -31,11 +31,11 @@ fun Route.userRouting() {
             val user = service.create(createRequest)
             call.respond(HttpStatusCode.Created, user)
         }
-        get("{id?}") {
-            val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
-            call.respond(service.getById(id))
-        }
         authenticate("auth-session") {
+            get("{id?}") {
+                val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
+                call.respond(service.getById(id))
+            }
             put("") {
                 val session = call.principal<UserSession>() ?: error("Not found session by id after auth")
                 val editRequest = call.receive<UserEditRequest>()

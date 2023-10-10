@@ -2,6 +2,7 @@ package kek.team.kokline.routing.api
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.call
+import io.ktor.server.auth.authenticate
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -19,30 +20,32 @@ fun Route.messageRouting() {
     val service: MessageService by inject<MessageService>()
 
     route("/messages") {
-        get("/fromChat/{id?}") {
-            val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
-            val messages = service.findAllByChatId(id)
-            call.respond(messages)
-        }
-        get("{id?}") {
-            val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
-            val message = service.getById(id)
-            call.respond(message)
-        }
-        put("") {
-            val request = call.receive<MessageEditRequest>()
-            val message = service.edit(request)
-
-            if (message == null) {
-                call.respond(HttpStatusCode.NotFound, "No message with id ${request.id}")
-            } else {
-                call.respond(HttpStatusCode.Accepted, message)
+        authenticate("auth-session") {
+            get("/fromChat/{id?}") {
+                val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
+                val messages = service.findAllByChatId(id)
+                call.respond(messages)
             }
-        }
-        delete("{id?}") {
-            val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
-            val deleted = service.deleteById(id)
-            call.respond(if (deleted) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
+            get("{id?}") {
+                val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
+                val message = service.getById(id)
+                call.respond(message)
+            }
+            put("") {
+                val request = call.receive<MessageEditRequest>()
+                val message = service.edit(request)
+
+                if (message == null) {
+                    call.respond(HttpStatusCode.NotFound, "No message with id ${request.id}")
+                } else {
+                    call.respond(HttpStatusCode.Accepted, message)
+                }
+            }
+            delete("{id?}") {
+                val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
+                val deleted = service.deleteById(id)
+                call.respond(if (deleted) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
+            }
         }
     }
 }

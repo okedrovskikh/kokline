@@ -13,7 +13,7 @@ import kek.team.kokline.session.UserSession
 import kek.team.kokline.session.userSession
 import org.koin.ktor.ext.inject
 
-fun Route.loginRouting() {
+fun Route.authRouting() {
 
     val service: LoginService by inject<LoginService>()
 
