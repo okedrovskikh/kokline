@@ -5,6 +5,7 @@ import kek.team.kokline.persistence.entities.UserTable
 import kek.team.kokline.factories.dbQuery
 import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.update
 
@@ -19,7 +20,9 @@ class UserRepository {
 
     fun findByIdWithChats(id: Long): UserEntity? = UserEntity.findById(id)?.load(UserEntity::chats)
 
-    fun findByCredits(credits: ByteArray): UserEntity? = UserEntity.find { UserTable.credits eq credits }.let {
+    fun findByCredits(nickname: String, credits: ByteArray): UserEntity? = UserEntity.find {
+        (UserTable.credits eq credits) and (UserTable.nickname eq nickname)
+    }.let {
         if (it.empty()) null else it.single()
     }
 

@@ -4,5 +4,8 @@ import kek.team.kokline.redis.consumer.MessageConsumer
 
 object MessageConsumerFactory {
 
-    fun createConsumer(channel: String): MessageConsumer = MessageConsumer(channel)
+    /**
+     * Store current coroutine context in created MessageConsumer
+     */
+    suspend fun createConsumer(channel: String): MessageConsumer = MessageConsumer(channel)
 }

@@ -8,6 +8,7 @@ import kek.team.kokline.persistence.entities.ChatTable
 import kek.team.kokline.persistence.entities.ChatUsersTable
 import kek.team.kokline.persistence.entities.IncomingMessageTable
 import kek.team.kokline.persistence.entities.MessageTable
+import kek.team.kokline.persistence.entities.PreferencesTable
 import kek.team.kokline.persistence.entities.UserTable
 import org.jetbrains.exposed.sql.SchemaUtils.statementsRequiredToActualizeScheme
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -17,10 +18,10 @@ val migrations = createApplicationPlugin("migration-plugin") {
         try {
             transaction {
                 val diffStatements = statementsRequiredToActualizeScheme(
-                    tables = arrayOf(UserTable, ChatTable, ChatUsersTable, MessageTable, IncomingMessageTable),
+                    tables = arrayOf(UserTable, ChatTable, ChatUsersTable, MessageTable, IncomingMessageTable, PreferencesTable),
                     withLogs = true
                 )
-                diffStatements.map { exec(it) }
+                diffStatements.forEach { exec(it) }
             }
         } catch (e: Throwable) {
             it.log.error("Error during updating tables", e)

@@ -11,21 +11,15 @@ import org.jetbrains.exposed.sql.update
 
 class MessageRepository {
 
-    suspend fun create(payload: String, chat: ChatEntity): MessageEntity = dbQuery {
-        MessageEntity.new {
-            this.payload = payload
-            this.chat = chat
-        }
+    fun create(payload: String, chat: ChatEntity): MessageEntity = MessageEntity.new {
+        this.payload = payload
+        this.chat = chat
     }
 
     suspend fun findAllByChatId(id: Long): SizedIterable<MessageEntity> =
         dbQuery { MessageEntity.find { MessageTable.chatId eq id } }
 
-    suspend fun findById(id: Long): MessageEntity? = dbQuery {
-        val entity = MessageEntity.findById(id)
-
-        entity
-    }
+    fun findById(id: Long): MessageEntity? = MessageEntity.findById(id)
 
     suspend fun edit(id: Long, payload: String): Boolean = dbQuery {
         val updatedRows = MessageTable.update({ MessageTable.id eq id }) { it[MessageTable.payload] = payload }

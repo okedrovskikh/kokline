@@ -6,11 +6,7 @@ import io.ktor.server.routing.route
 
 fun Route.webSocketRouting() {
     authenticate("auth-session") {
-        route("/chat") {
-            chatRouting()
-        }
-        route("/notifier") {
-            notifierRouting()
-        }
+        chatRouting()
+        notifierRouting()
     }
 }

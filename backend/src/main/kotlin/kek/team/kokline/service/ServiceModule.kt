@@ -4,6 +4,7 @@ import kek.team.kokline.service.chat.ChatService
 import kek.team.kokline.service.events.EventsService
 import kek.team.kokline.service.login.LoginService
 import kek.team.kokline.service.message.MessageService
+import kek.team.kokline.service.security.PreferencesService
 import kek.team.kokline.service.user.UserService
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -14,4 +15,5 @@ val serviceModule = module {
     singleOf(::LoginService)
     singleOf(::UserService)
     singleOf(::EventsService)
+    singleOf(::PreferencesService)
 }
