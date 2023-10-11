@@ -7,4 +7,5 @@ val mapperModule = module {
     singleOf(::ChatMapper)
     singleOf(::MessageMapper)
     singleOf(::UserMapper)
+    singleOf(::ExceptionsMapper)
 }

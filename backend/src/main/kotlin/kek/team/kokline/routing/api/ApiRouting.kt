@@ -6,6 +6,7 @@ import io.ktor.server.routing.route
 fun Route.apiRouting() {
     route("/api") {
         route("/v1") {
+            authRouting()
             userRouting()
             chatRouting()
             messageRouting()

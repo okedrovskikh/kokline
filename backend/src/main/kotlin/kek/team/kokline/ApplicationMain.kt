@@ -3,6 +3,9 @@ package kek.team.kokline
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.netty.EngineMain
+import kek.team.kokline.configurations.configureAuth
+import kek.team.kokline.configurations.configureSessions
+import kek.team.kokline.configurations.configureExceptions
 import kek.team.kokline.configurations.configureKoin
 import kek.team.kokline.configurations.configureRouting
 import kek.team.kokline.configurations.configureSerialization
@@ -13,12 +16,14 @@ import kek.team.kokline.redis.plugins.redisPlugin
 
 fun main(args: Array<String>) = EngineMain.main(args)
 
-// Надо настроить падение при ошибках инициализации плагинов
 fun Application.module() {
     install(hikariPoolPlugin)
     install(migrations)
     install(redisPlugin)
     configureKoin()
+    configureExceptions()
+    configureSessions()
+    configureAuth()
     configureSerialization()
     configureSockets()
     configureRouting()

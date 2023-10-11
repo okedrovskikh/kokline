@@ -8,6 +8,8 @@ val hikaricpVersion: String by project
 
 val jedisVersion: String by project
 
+val kloggingVersion: String by project
+
 plugins {
     kotlin("jvm")
     id("io.ktor.plugin") version "2.3.4"
@@ -15,7 +17,7 @@ plugins {
 }
 
 application {
-    mainClass = "kek.team.kokline.MainKt"
+    mainClass = "kek.team.kokline.ApplicationMainKt"
 }
 
 dependencies {
@@ -30,6 +32,8 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-server-openapi")
+    implementation("io.ktor:ktor-server-host-common-jvm:2.3.4")
+    implementation("io.ktor:ktor-server-status-pages-jvm:2.3.4")
     testImplementation("io.ktor:ktor-server-tests-jvm")
 
     implementation("com.zaxxer:HikariCP:$hikaricpVersion")
@@ -44,4 +48,6 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:3.5.1")
 
     implementation(group = "redis.clients", name = "jedis", version = jedisVersion)
+
+    implementation(group = "io.github.oshai", name = "kotlin-logging", version = kloggingVersion)
 }
