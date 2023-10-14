@@ -8,4 +8,5 @@ val mapperModule = module {
     singleOf(::MessageMapper)
     singleOf(::UserMapper)
     singleOf(::ExceptionsMapper)
+    singleOf(::PreferencesMapper)
 }

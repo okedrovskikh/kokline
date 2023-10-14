@@ -5,25 +5,30 @@ import kek.team.kokline.factories.dbQuery
 import kek.team.kokline.mappers.MessageMapper
 import kek.team.kokline.models.Message
 import kek.team.kokline.models.MessageEditRequest
+import kek.team.kokline.models.PreferenceDescription
 import kek.team.kokline.models.WebSocketMessageCreateRequest
 import kek.team.kokline.persistence.repositories.ChatRepository
 import kek.team.kokline.persistence.repositories.IncomingMessageRepository
 import kek.team.kokline.persistence.repositories.MessageRepository
 import kek.team.kokline.redis.publisher.MessagePublisher
+import kek.team.kokline.service.security.PreferencesService
 
 class MessageService(
     private val messageRepository: MessageRepository,
     private val chatRepository: ChatRepository,
     private val incomingMessageRepository: IncomingMessageRepository,
     private val mapper: MessageMapper,
+    private val preferencesService: PreferencesService
 ) {
-    // TODO протестировать как работают транзакции (если будет ошибка при publish откатим ли сообщение?)
-    suspend fun create(request: WebSocketMessageCreateRequest, chatId: Long): Message = dbQuery {
-        val chat = chatRepository.findById(chatId) ?: throw NotFoundException("Not found chat by id: ${chatId}")
+    suspend fun create(request: WebSocketMessageCreateRequest, chatId: Long, userId: Long): Message = dbQuery {
+        val chat = chatRepository.findById(chatId) ?: throw NotFoundException("Not found chat by id: $chatId")
         val message = messageRepository.create(request.payload.text, chat)
         chat.users.forEach { incomingMessageRepository.create(message, it) }
         MessagePublisher.publish("${chat.id}:${message.id}", "events:chat:message:create")
-        mapper.mapToModel(message)
+        mapper.mapToModel(message).also {
+            preferencesService.create(PreferenceDescription("message:edit", listOf(userId), listOf(requireNotNull(it.id))))
+            preferencesService.create(PreferenceDescription("message:delete", listOf(userId), listOf(requireNotNull(it.id))))
+        }
     }
 
     suspend fun findAllByChatId(id: Long): List<Message> = messageRepository.findAllByChatId(id).map(mapper::mapToModel)

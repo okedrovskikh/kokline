@@ -12,6 +12,9 @@ import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import kek.team.kokline.exceptions.BadRequestException
 import kek.team.kokline.models.MessageEditRequest
+import kek.team.kokline.security.sessions.SessionNames.basicSession
+import kek.team.kokline.security.sessions.SessionNames.messageDeleteSession
+import kek.team.kokline.security.sessions.SessionNames.messageEditSession
 import kek.team.kokline.service.message.MessageService
 import org.koin.ktor.ext.inject
 
@@ -20,7 +23,7 @@ fun Route.messageRouting() {
     val service: MessageService by inject<MessageService>()
 
     route("/messages") {
-        authenticate("auth-session") {
+        authenticate(basicSession) {
             get("/fromChat/{id?}") {
                 val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
                 val messages = service.findAllByChatId(id)
@@ -31,6 +34,8 @@ fun Route.messageRouting() {
                 val message = service.getById(id)
                 call.respond(message)
             }
+        }
+        authenticate(messageEditSession) {
             put("") {
                 val request = call.receive<MessageEditRequest>()
                 val message = service.edit(request)
@@ -41,6 +46,8 @@ fun Route.messageRouting() {
                     call.respond(HttpStatusCode.Accepted, message)
                 }
             }
+        }
+        authenticate(messageDeleteSession) {
             delete("{id?}") {
                 val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
                 val deleted = service.deleteById(id)

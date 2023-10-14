@@ -18,7 +18,7 @@ import kek.team.kokline.coroutines.ChatSession
 import kek.team.kokline.coroutines.ChatSessionContext
 import kek.team.kokline.mappers.ExceptionsMapper
 import kek.team.kokline.service.message.MessageService
-import kek.team.kokline.session.UserSession
+import kek.team.kokline.security.sessions.BasicUserSession
 import kek.team.kokline.support.utils.loggingCoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -45,7 +45,7 @@ fun Route.chatRouting() {
                     message = "Parameter chatId empty ot null"
                 )
             )
-            val user = call.principal<UserSession>() ?: return@webSocket close(
+            val user = call.principal<BasicUserSession>() ?: return@webSocket close(
                 CloseReason(
                     code = CloseReason.Codes.CANNOT_ACCEPT,
                     message = "No header x-user-id"
@@ -87,7 +87,7 @@ fun Route.chatRouting() {
                     for (frame in incoming) {
                         launch(sendingHandler) {
                             val request = objectMapper.readValue<WebSocketMessageCreateRequest>(frame.data)
-                            messageService.create(request, chatId)
+                            messageService.create(request, chatId, userId)
                         }
                     }
                 }

@@ -9,14 +9,14 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.server.sessions.sessions
-import kek.team.kokline.session.UserSession
-import kek.team.kokline.session.userSession
+import kek.team.kokline.security.sessions.BasicUserSession
+import kek.team.kokline.security.sessions.SessionNames.userSession
 
 fun Route.authRouting() {
     route("/auth") {
         authenticate("auth-basic") {
             post("/login") {
-                val session = call.principal<UserSession>()
+                val session = call.principal<BasicUserSession>()
                 call.sessions.set(userSession, session)
                 call.respond(HttpStatusCode.Accepted)
             }

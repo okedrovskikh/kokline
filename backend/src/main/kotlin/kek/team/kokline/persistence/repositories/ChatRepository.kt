@@ -18,9 +18,9 @@ class ChatRepository {
     fun findById(id: Long): ChatEntity? = ChatEntity.findById(id)
 
     suspend fun edit(id: Long, name: String): Boolean = dbQuery {
-        val updatedRows = ChatTable.update( { ChatTable.id eq id } ) { ChatTable.name eq name }
+        val updatedRows = ChatTable.update( { ChatTable.id eq id } ) { it[ChatTable.name] = name }
 
-        if (updatedRows > 1) error("update more than 1 row by id: ${id}")
+        if (updatedRows > 1) error("update more than 1 row by id: $id")
 
         updatedRows > 0
     }

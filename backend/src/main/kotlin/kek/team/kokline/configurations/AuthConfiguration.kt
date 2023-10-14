@@ -1,13 +1,14 @@
 package kek.team.kokline.configurations
 
 import io.ktor.server.application.Application
-import io.ktor.server.auth.UnauthorizedResponse
 import io.ktor.server.auth.authentication
 import io.ktor.server.auth.basic
-import io.ktor.server.auth.session
-import io.ktor.server.response.respond
+import kek.team.kokline.security.auth.configureBasicAuth
+import kek.team.kokline.security.auth.configureChatApiAuth
+import kek.team.kokline.security.auth.configureMessageApiAuth
+import kek.team.kokline.security.auth.configureUserApiAuth
 import kek.team.kokline.service.login.LoginService
-import kek.team.kokline.session.UserSession
+import kek.team.kokline.service.security.SecurityService
 import org.koin.ktor.ext.inject
 
 /**
@@ -17,17 +18,20 @@ import org.koin.ktor.ext.inject
 fun Application.configureAuth() {
 
     val service: LoginService by inject<LoginService>()
+    val securityService: SecurityService by inject<SecurityService>()
 
     authentication {
         basic("auth-basic") {
             realm = "Access to '/' path"
             validate { credential ->
-                UserSession(service.login(credential))
+                val userId = service.login(credential)
+                securityService.createSession(userId)
             }
         }
-        session<UserSession>("auth-session") {
-            validate { if (service.validate(it)) it else null }
-            challenge { call.respond(UnauthorizedResponse()) }
-        }
     }
+    // TODO подумать как можно обобщить создание сессий внутри конфигураций
+    configureBasicAuth()
+    configureUserApiAuth()
+    configureChatApiAuth()
+    configureMessageApiAuth()
 }
