@@ -1,12 +1,8 @@
 package kek.team.kokline.persistence.repositories
 
 import kek.team.kokline.factories.transactionLevel
-import kek.team.kokline.persistence.entities.BasePreferenceEntity
-import kek.team.kokline.persistence.entities.ChatEntity
-import kek.team.kokline.persistence.entities.ChatPreferencesEntity
+import kek.team.kokline.persistence.entities.PreferenceEntity
 import kek.team.kokline.persistence.entities.PreferencesTable
-import org.jetbrains.exposed.dao.Entity
-import org.jetbrains.exposed.sql.Join
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
@@ -16,59 +12,53 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.inTopLevelTransaction
 
-abstract class PreferencesRepository<T : Entity<Long>> {
-    protected abstract val featurePrefix: String
+ class PreferencesRepository {
 
-    fun create(featureName: String, customerId: Long, resourceId: Long): BasePreferenceEntity<T> = inTopLevelTransaction(transactionLevel) {
-        if (!featureName.startsWith(featurePrefix)) error("Illegal feature prefix: ${featureName.split(":").first()}")
-
+    fun create(action: String, ownerId: Long, resourceId: Long): PreferenceEntity = inTopLevelTransaction(transactionLevel) {
         val row = PreferencesTable.insert {
-            it[PreferencesTable.featureName] = featureName
-            it[PreferencesTable.customerId] = customerId
+            it[PreferencesTable.action] = action
+            it[PreferencesTable.ownerId] = ownerId
             it[PreferencesTable.resourceId] = resourceId
         }.resultedValues?.single()
 
         wrapRow(requireNotNull(row))
     }
 
-    fun findAllWithResourceByCustomerAndResourceIds(customerId: Long, resourceId: Long): List<BasePreferenceEntity<T>> {
-        val rows = joinWithResource()
-            .selectAll()
-            .adjustWhere { (PreferencesTable.customerId eq customerId) and (PreferencesTable.resourceId eq resourceId) }
-            .adjustWhere { PreferencesTable.featureName like featurePrefix }
+    fun findAllWithResourceByOwner(id: Long, actionPrefix: String): List<PreferenceEntity> {
+        val rows = PreferencesTable.selectAll()
+            .adjustWhere { (PreferencesTable.ownerId eq id) and (PreferencesTable.action like actionPrefix) }
             .toList()
         return rows.map(::wrapRow)
     }
 
-    protected abstract fun joinWithResource(): Join // PreferencesTable.join(ChatTable, JoinType.INNER, onColumn = PreferencesTable.resourceId, otherColumn = ChatTable.id)
+    fun findAllWithResourceByOwnerAndResource(ownerId: Long, resourceId: Long, actionPrefix: String): List<PreferenceEntity> {
+        val rows = PreferencesTable.selectAll()
+            .adjustWhere { (PreferencesTable.ownerId eq ownerId) and (PreferencesTable.resourceId eq resourceId) }
+            .adjustWhere { PreferencesTable.action like actionPrefix }
+            .toList()
+        return rows.map(::wrapRow)
+    }
 
-    protected abstract fun wrapRow(row: ResultRow): BasePreferenceEntity<T>
+    fun findAllWithResourceByOwnerAndAction(ownerId: Long, action: String): List<PreferenceEntity> {
+        val rows = PreferencesTable.selectAll()
+            .adjustWhere { (PreferencesTable.ownerId eq ownerId) and (PreferencesTable.action eq action) }
+            .toList()
+        return rows.map(::wrapRow)
+    }
 
-    fun findAllByCustomerId(id: Long): List<BasePreferenceEntity<out Entity<Long>>> = PreferencesTable.selectAll()
-        .adjustWhere { PreferencesTable.customerId eq id }
-        .map { BasePreferenceEntity.wrapRow(it) }
+    private fun wrapRow(row: ResultRow) = PreferenceEntity.wrapRow(row)
 
-    /**
-     * Should be run in transaction, cause have checks after deletion
-     */
-    // TODO проверить как работает inTopLevelTransaction, если поддерживает внешнюю транзакцию, то можно удалить комментарий
-    fun deleteByCustomerAndResourceIds(customerId: Long, resourceId: Long): Boolean = inTopLevelTransaction(transactionLevel) {
+    fun findAllByOwner(id: Long): List<PreferenceEntity> = PreferencesTable.selectAll()
+        .adjustWhere { PreferencesTable.ownerId eq id }
+        .map { PreferenceEntity.wrapRow(it) }
+
+    fun deleteByOwnerAndResource(ownerId: Long, resourceId: Long, action: String): Boolean = inTopLevelTransaction(transactionLevel) {
         val deletedRowsCount = PreferencesTable.deleteWhere {
-            (PreferencesTable.customerId eq customerId) and (PreferencesTable.resourceId eq resourceId)
+            (PreferencesTable.ownerId eq ownerId) and (PreferencesTable.resourceId eq resourceId) and (PreferencesTable.action eq action)
         }
 
-        if (deletedRowsCount > 1) error("Deleted more than 1 row by customerId = $customerId and resourceId = $resourceId")
+        if (deletedRowsCount > 1) error("Deleted more than 1 row by customerId = $ownerId and resourceId = $resourceId")
 
         deletedRowsCount > 0
     }
-}
-
-class ChatPreferencesRepository : PreferencesRepository<ChatEntity>() {
-    override val featurePrefix: String = "chat:"
-
-    override fun joinWithResource(): Join {
-        TODO("Not yet implemented")
-    }
-
-    override fun wrapRow(row: ResultRow): ChatPreferencesEntity = ChatPreferencesEntity.wrapRow(row)
 }

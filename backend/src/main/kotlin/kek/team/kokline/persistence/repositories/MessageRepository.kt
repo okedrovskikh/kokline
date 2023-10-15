@@ -4,16 +4,20 @@ import kek.team.kokline.persistence.entities.ChatEntity
 import kek.team.kokline.persistence.entities.MessageEntity
 import kek.team.kokline.persistence.entities.MessageTable
 import kek.team.kokline.factories.dbQuery
+import kek.team.kokline.factories.transactionLevel
 import org.jetbrains.exposed.sql.SizedIterable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.transactions.inTopLevelTransaction
 import org.jetbrains.exposed.sql.update
 
 class MessageRepository {
 
-    fun create(payload: String, chat: ChatEntity): MessageEntity = MessageEntity.new {
-        this.payload = payload
-        this.chat = chat
+    fun create(payload: String, chat: ChatEntity): MessageEntity = inTopLevelTransaction(transactionLevel) {
+        MessageEntity.new {
+            this.payload = payload
+            this.chat = chat
+        }
     }
 
     suspend fun findAllByChatId(id: Long): SizedIterable<MessageEntity> =

@@ -16,7 +16,10 @@ import kek.team.kokline.exceptions.BadRequestException
 import kek.team.kokline.models.ChatCreateRequest
 import kek.team.kokline.models.ChatEditRequest
 import kek.team.kokline.service.chat.ChatService
-import kek.team.kokline.session.UserSession
+import kek.team.kokline.security.sessions.BasicUserSession
+import kek.team.kokline.security.sessions.basicSession
+import kek.team.kokline.security.sessions.chatDeleteSession
+import kek.team.kokline.security.sessions.chatEditSession
 import org.koin.ktor.ext.inject
 
 fun Route.chatRouting() {
@@ -24,9 +27,9 @@ fun Route.chatRouting() {
     val service: ChatService by inject<ChatService>()
 
     route("/chats") {
-        authenticate("auth-session") {
+        authenticate(basicSession) {
             post("") {
-                val session = call.principal<UserSession>() ?: error("Not found session by id after auth")
+                val session = call.principal<BasicUserSession>() ?: error("Not found session by id after auth")
                 val chatCreateRequest = call.receive<ChatCreateRequest>()
                 val chat = service.create(session.id, chatCreateRequest)
                 call.respond(HttpStatusCode.Created, chat)
@@ -36,11 +39,15 @@ fun Route.chatRouting() {
                 val chat = service.getById(id)
                 call.respond(chat)
             }
+        }
+        authenticate(chatEditSession) {
             put("") {
                 val chat = call.receive<ChatEditRequest>()
                 val updated = service.edit(chat)
                 call.respond(if (updated) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
             }
+        }
+        authenticate(chatDeleteSession) {
             delete("{id?}") {
                 val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
                 val deleted = service.deleteById(id)

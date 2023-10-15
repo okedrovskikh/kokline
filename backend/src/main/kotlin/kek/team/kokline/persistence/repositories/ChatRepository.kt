@@ -3,24 +3,27 @@ package kek.team.kokline.persistence.repositories
 import kek.team.kokline.persistence.entities.ChatEntity
 import kek.team.kokline.persistence.entities.ChatTable
 import kek.team.kokline.factories.dbQuery
+import kek.team.kokline.persistence.entities.UserEntity
+import kek.team.kokline.support.utils.toSizedCollection
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.update
 
 class ChatRepository {
 
-    suspend fun create(name: String): ChatEntity = dbQuery {
+    suspend fun create(name: String, users: Collection<Long>): ChatEntity = dbQuery {
         ChatEntity.new {
             this.name = name
+            this.users = users.map { UserEntity[it] }.toSizedCollection()
         }
     }
 
     fun findById(id: Long): ChatEntity? = ChatEntity.findById(id)
 
     suspend fun edit(id: Long, name: String): Boolean = dbQuery {
-        val updatedRows = ChatTable.update( { ChatTable.id eq id } ) { ChatTable.name eq name }
+        val updatedRows = ChatTable.update( { ChatTable.id eq id } ) { it[ChatTable.name] = name }
 
-        if (updatedRows > 1) error("update more than 1 row by id: ${id}")
+        if (updatedRows > 1) error("update more than 1 row by id: $id")
 
         updatedRows > 0
     }

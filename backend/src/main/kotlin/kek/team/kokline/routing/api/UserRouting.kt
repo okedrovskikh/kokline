@@ -17,8 +17,10 @@ import kek.team.kokline.exceptions.BadRequestException
 import kek.team.kokline.models.UserCreateRequest
 import kek.team.kokline.models.UserEditRequest
 import kek.team.kokline.service.user.UserService
-import kek.team.kokline.session.UserSession
-import kek.team.kokline.session.userSession
+import kek.team.kokline.security.sessions.BasicUserSession
+import kek.team.kokline.security.sessions.basicSession
+import kek.team.kokline.security.sessions.userDeleteSession
+import kek.team.kokline.security.sessions.userEditSession
 import org.koin.ktor.ext.inject
 
 fun Route.userRouting() {
@@ -31,21 +33,25 @@ fun Route.userRouting() {
             val user = service.create(createRequest)
             call.respond(HttpStatusCode.Created, user)
         }
-        authenticate("auth-session") {
+        authenticate(basicSession) {
             get("{id?}") {
                 val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
                 call.respond(service.getById(id))
             }
+        }
+        authenticate(userEditSession) {
             put("") {
-                val session = call.principal<UserSession>() ?: error("Not found session by id after auth")
+                val session = call.principal<BasicUserSession>() ?: error("Not found session by id after auth")
                 val editRequest = call.receive<UserEditRequest>()
                 val updated = service.edit(session.id, editRequest)
                 call.respond(if (updated) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
             }
+        }
+        authenticate(userDeleteSession) {
             delete("") {
-                val session = call.principal<UserSession>() ?: error("Not found session by id after auth")
+                val session = call.principal<BasicUserSession>() ?: error("Not found session by id after auth")
                 val deleted = service.deleteById(session.id)
-                call.sessions.clear(userSession)
+                call.sessions.clear("user-session")
                 call.respond(if (deleted) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
             }
         }

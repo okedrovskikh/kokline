@@ -4,6 +4,7 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.netty.EngineMain
 import kek.team.kokline.configurations.configureAuth
+import kek.team.kokline.configurations.configureDoubleReceive
 import kek.team.kokline.configurations.configureSessions
 import kek.team.kokline.configurations.configureExceptions
 import kek.team.kokline.configurations.configureKoin
@@ -21,6 +22,7 @@ fun Application.module() {
     install(migrations)
     install(redisPlugin)
     configureKoin()
+    configureDoubleReceive()
     configureExceptions()
     configureSessions()
     configureAuth()
