@@ -6,7 +6,6 @@ import io.ktor.server.application.hooks.MonitoringEvent
 import io.ktor.server.application.log
 import kek.team.kokline.persistence.entities.ChatTable
 import kek.team.kokline.persistence.entities.ChatUsersTable
-import kek.team.kokline.persistence.entities.IncomingMessageTable
 import kek.team.kokline.persistence.entities.MessageTable
 import kek.team.kokline.persistence.entities.PreferencesTable
 import kek.team.kokline.persistence.entities.UserTable
@@ -18,7 +17,7 @@ val migrations = createApplicationPlugin("migration-plugin") {
         try {
             transaction {
                 val diffStatements = statementsRequiredToActualizeScheme(
-                    tables = arrayOf(UserTable, ChatTable, ChatUsersTable, MessageTable, IncomingMessageTable, PreferencesTable),
+                    tables = arrayOf(UserTable, ChatTable, ChatUsersTable, MessageTable, PreferencesTable),
                     withLogs = true
                 )
                 diffStatements.forEach { exec(it) }
