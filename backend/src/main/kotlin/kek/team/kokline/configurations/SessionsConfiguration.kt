@@ -2,19 +2,21 @@ package kek.team.kokline.configurations
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
-import io.ktor.server.sessions.SessionStorageMemory
 import io.ktor.server.sessions.Sessions
 import io.ktor.server.sessions.cookie
-import io.ktor.server.sessions.serialization.KotlinxBackwardCompatibleSessionSerializer
 import io.ktor.server.sessions.serialization.KotlinxSessionSerializer
 import kek.team.kokline.security.sessions.BasicUserSession
+import kek.team.kokline.security.sessions.RedisSessionStorage
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 
+/**
+ * depends on KoinConfiguration
+ * @see kek.team.kokline.configurations.configureKoin
+ */
 fun Application.configureSessions() {
     install(Sessions) {
-        // TODO переделать хранение сессий с InMemory на redis
-        cookie<BasicUserSession>("user-session", SessionStorageMemory()) {
+        cookie<BasicUserSession>("user-session", RedisSessionStorage()) {
             cookie.path = "/"
             cookie.maxAgeInSeconds = 600
             serializer = KotlinxSessionSerializer(serializer(), Json)

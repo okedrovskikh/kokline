@@ -9,8 +9,8 @@ import io.ktor.server.response.respond
 import kek.team.kokline.models.Preference
 import kek.team.kokline.models.RequestWithId
 import kek.team.kokline.security.sessions.BasicUserSession
-import kek.team.kokline.security.sessions.SessionNames.messageDeleteSession
-import kek.team.kokline.security.sessions.SessionNames.messageEditSession
+import kek.team.kokline.security.sessions.messageDeleteSession
+import kek.team.kokline.security.sessions.messageEditSession
 import kek.team.kokline.service.security.SecurityService
 import org.koin.ktor.ext.inject
 

@@ -17,9 +17,9 @@ import kek.team.kokline.models.ChatCreateRequest
 import kek.team.kokline.models.ChatEditRequest
 import kek.team.kokline.service.chat.ChatService
 import kek.team.kokline.security.sessions.BasicUserSession
-import kek.team.kokline.security.sessions.SessionNames.basicSession
-import kek.team.kokline.security.sessions.SessionNames.chatDeleteSession
-import kek.team.kokline.security.sessions.SessionNames.chatEditSession
+import kek.team.kokline.security.sessions.basicSession
+import kek.team.kokline.security.sessions.chatDeleteSession
+import kek.team.kokline.security.sessions.chatEditSession
 import org.koin.ktor.ext.inject
 
 fun Route.chatRouting() {

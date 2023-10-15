@@ -10,7 +10,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.server.sessions.sessions
 import kek.team.kokline.security.sessions.BasicUserSession
-import kek.team.kokline.security.sessions.SessionNames.userSession
+import kek.team.kokline.security.sessions.userSession
 
 fun Route.authRouting() {
     route("/auth") {

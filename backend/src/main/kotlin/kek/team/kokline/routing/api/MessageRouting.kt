@@ -12,9 +12,9 @@ import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import kek.team.kokline.exceptions.BadRequestException
 import kek.team.kokline.models.MessageEditRequest
-import kek.team.kokline.security.sessions.SessionNames.basicSession
-import kek.team.kokline.security.sessions.SessionNames.messageDeleteSession
-import kek.team.kokline.security.sessions.SessionNames.messageEditSession
+import kek.team.kokline.security.sessions.basicSession
+import kek.team.kokline.security.sessions.messageDeleteSession
+import kek.team.kokline.security.sessions.messageEditSession
 import kek.team.kokline.service.message.MessageService
 import org.koin.ktor.ext.inject
 

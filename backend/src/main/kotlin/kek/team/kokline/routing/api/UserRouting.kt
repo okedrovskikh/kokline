@@ -18,9 +18,9 @@ import kek.team.kokline.models.UserCreateRequest
 import kek.team.kokline.models.UserEditRequest
 import kek.team.kokline.service.user.UserService
 import kek.team.kokline.security.sessions.BasicUserSession
-import kek.team.kokline.security.sessions.SessionNames.basicSession
-import kek.team.kokline.security.sessions.SessionNames.userDeleteSession
-import kek.team.kokline.security.sessions.SessionNames.userEditSession
+import kek.team.kokline.security.sessions.basicSession
+import kek.team.kokline.security.sessions.userDeleteSession
+import kek.team.kokline.security.sessions.userEditSession
 import org.koin.ktor.ext.inject
 
 fun Route.userRouting() {

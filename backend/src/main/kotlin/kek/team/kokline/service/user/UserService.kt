@@ -17,8 +17,8 @@ class UserService(
     private val preferencesService: PreferencesService,
 ) {
 
-    suspend fun create(request: UserCreateRequest): User {
-        return repository.create(request.nickname, request.credits.encodeToByteArray()).let(mapper::mapToUser).also {
+    suspend fun create(request: UserCreateRequest): User = dbQuery {
+        repository.create(request.nickname, request.credits.encodeToByteArray()).let(mapper::mapToUser).also {
             preferencesService.create(PreferenceDescription("user:edit", listOf(it.id), listOf(it.id)))
             preferencesService.create(PreferenceDescription("user:delete", listOf(it.id), listOf(it.id)))
         }
@@ -33,5 +33,7 @@ class UserService(
 
     suspend fun deleteById(id: Long): Boolean = repository.deleteById(id).also {
         MessagePublisher.publish(id.toString(), "events:user:delete")
+        preferencesService.deleteUserPreference(id, id, "user:edit")
+        preferencesService.deleteUserPreference(id, id, "user:delete")
     }
 }

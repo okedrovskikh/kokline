@@ -3,15 +3,17 @@ package kek.team.kokline.persistence.repositories
 import kek.team.kokline.persistence.entities.UserEntity
 import kek.team.kokline.persistence.entities.UserTable
 import kek.team.kokline.factories.dbQuery
+import kek.team.kokline.factories.transactionLevel
 import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.transactions.inTopLevelTransaction
 import org.jetbrains.exposed.sql.update
 
 class UserRepository {
 
-    suspend fun create(nickname: String, credits: ByteArray): UserEntity = dbQuery {
+    fun create(nickname: String, credits: ByteArray): UserEntity = inTopLevelTransaction(transactionLevel) {
         UserEntity.new {
             this.nickname = nickname
             this.credits = credits

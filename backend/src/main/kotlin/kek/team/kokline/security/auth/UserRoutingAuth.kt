@@ -7,8 +7,8 @@ import io.ktor.server.auth.session
 import io.ktor.server.response.respond
 import kek.team.kokline.models.Preference
 import kek.team.kokline.security.sessions.BasicUserSession
-import kek.team.kokline.security.sessions.SessionNames.userDeleteSession
-import kek.team.kokline.security.sessions.SessionNames.userEditSession
+import kek.team.kokline.security.sessions.userDeleteSession
+import kek.team.kokline.security.sessions.userEditSession
 import kek.team.kokline.service.security.SecurityService
 import org.koin.ktor.ext.inject
 
