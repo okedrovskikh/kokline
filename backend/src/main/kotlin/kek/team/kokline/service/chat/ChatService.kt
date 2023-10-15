@@ -22,9 +22,11 @@ class ChatService(
 
     suspend fun create(userId: Long, request: ChatCreateRequest): Chat = dbQuery {
         // val user = userRepository.findByIdWithChats(userId) ?: error("Not found user by id after auth")
-        val chat = chatRepository.create(request.name)
+        val participants = (request.users + userId).toSet()
+        val chat = chatRepository.create(request.name, participants)
         MessagePublisher.publish(requireNotNull(chat.id).toString(), "events:chat:create")
         mapper.mapToModel(chat).also {
+            preferencesService.create(PreferenceDescription("chat:read", participants, listOf(requireNotNull(it.id))))
             preferencesService.create(PreferenceDescription("chat:edit", listOf(userId), listOf(requireNotNull(it.id))))
             preferencesService.create(PreferenceDescription("chat:delete", listOf(userId), listOf(requireNotNull(it.id))))
         }

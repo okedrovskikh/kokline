@@ -38,7 +38,7 @@ fun Route.chatRouting() {
     val exceptionMapper: ExceptionsMapper by inject<ExceptionsMapper>()
 
     route("/chat") {
-        webSocket("/joinChat") {
+        webSocket("/joinChat/{id?}") {
             val chatId = call.request.queryParameters["id"]?.toLongOrNull() ?: return@webSocket close(
                 CloseReason(
                     code = CloseReason.Codes.CANNOT_ACCEPT,

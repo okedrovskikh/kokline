@@ -34,9 +34,9 @@ class MessageService(
         messageRepository.findById(id)?.let(mapper::mapToModel)
     } ?: throw NotFoundException("Not found message by id: $id")
 
-    suspend fun edit(request: MessageEditRequest): Message? {
+    suspend fun edit(request: MessageEditRequest): Message? = dbQuery {
         val message = messageRepository.findById(request.id)
-        return message?.apply { payload = request.payload }?.let(mapper::mapToModel)
+        message?.apply { payload = request.payload }?.let(mapper::mapToModel)
     }
 
     suspend fun deleteById(id: Long): Boolean = messageRepository.deleteById(id)
