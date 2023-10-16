@@ -42,16 +42,17 @@ fun Route.chatRouting() {
         }
         authenticate(chatEditSession) {
             put("") {
+                val session = call.principal<BasicUserSession>() ?: error("Not found session by id after auth")
                 val chat = call.receive<ChatEditRequest>()
-                val updated = service.edit(chat)
-                call.respond(if (updated) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
+                service.edit(session.id, chat)
+                call.respond(HttpStatusCode.OK)
             }
         }
         authenticate(chatDeleteSession) {
             delete("{id?}") {
                 val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
-                val deleted = service.deleteById(id)
-                call.respond(if (deleted) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
+                service.deleteById(id)
+                call.respond(HttpStatusCode.OK)
             }
         }
     }

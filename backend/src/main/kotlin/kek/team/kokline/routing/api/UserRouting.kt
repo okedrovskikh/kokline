@@ -43,16 +43,16 @@ fun Route.userRouting() {
             put("") {
                 val session = call.principal<BasicUserSession>() ?: error("Not found session by id after auth")
                 val editRequest = call.receive<UserEditRequest>()
-                val updated = service.edit(session.id, editRequest)
-                call.respond(if (updated) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
+                service.edit(session.id, editRequest)
+                call.respond(HttpStatusCode.OK)
             }
         }
         authenticate(userDeleteSession) {
             delete("") {
                 val session = call.principal<BasicUserSession>() ?: error("Not found session by id after auth")
-                val deleted = service.deleteById(session.id)
+                service.deleteById(session.id)
                 call.sessions.clear("user-session")
-                call.respond(if (deleted) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
+                call.respond(HttpStatusCode.OK)
             }
         }
     }
