@@ -1,27 +1,38 @@
 package kek.team.kokline.persistence.repositories
 
-import kek.team.kokline.factories.transactionLevel
+import kek.team.kokline.factories.newOrSupportedTransaction
+import kek.team.kokline.models.PreferenceDescription
 import kek.team.kokline.persistence.entities.PreferenceEntity
 import kek.team.kokline.persistence.entities.PreferencesTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.inTopLevelTransaction
 
- class PreferencesRepository {
+class PreferencesRepository {
 
-    fun create(action: String, ownerId: Long, resourceId: Long): PreferenceEntity = inTopLevelTransaction(transactionLevel) {
-        val row = PreferencesTable.insert {
-            it[PreferencesTable.action] = action
-            it[PreferencesTable.ownerId] = ownerId
-            it[PreferencesTable.resourceId] = resourceId
-        }.resultedValues?.single()
+    suspend fun create(preference: PreferenceDescription): List<PreferenceEntity> = newOrSupportedTransaction {
+        createAll(listOf(preference))
+    }
 
-        wrapRow(requireNotNull(row))
+    suspend fun createAll(preferences: Collection<PreferenceDescription>): List<PreferenceEntity> = newOrSupportedTransaction {
+        val rows = PreferencesTable.batchInsert(preferences.toTriplets()) {
+            this[PreferencesTable.action] = it.first
+            this[PreferencesTable.ownerId] = it.second
+            this[PreferencesTable.resourceId] = it.third
+        }
+        rows.map(::wrapRow)
+    }
+
+    private fun Collection<PreferenceDescription>.toTriplets() = flatMap { it.toTriplets() }
+
+    private fun PreferenceDescription.toTriplets() = resourcesId.flatMap { resource ->
+        ownersId.map { owner ->
+            Triple(action, owner, resource)
+        }
     }
 
     fun findAllWithResourceByOwner(id: Long, actionPrefix: String): List<PreferenceEntity> {
@@ -46,13 +57,13 @@ import org.jetbrains.exposed.sql.transactions.inTopLevelTransaction
         return rows.map(::wrapRow)
     }
 
-    private fun wrapRow(row: ResultRow) = PreferenceEntity.wrapRow(row)
-
     fun findAllByOwner(id: Long): List<PreferenceEntity> = PreferencesTable.selectAll()
         .adjustWhere { PreferencesTable.ownerId eq id }
         .map { PreferenceEntity.wrapRow(it) }
 
-    fun deleteByOwnerAndResource(ownerId: Long, resourceId: Long, action: String): Boolean = inTopLevelTransaction(transactionLevel) {
+    private fun wrapRow(row: ResultRow) = PreferenceEntity.wrapRow(row)
+
+    suspend fun deleteByOwnerAndResource(ownerId: Long, resourceId: Long, action: String): Boolean = newOrSupportedTransaction {
         val deletedRowsCount = PreferencesTable.deleteWhere {
             (PreferencesTable.ownerId eq ownerId) and (PreferencesTable.resourceId eq resourceId) and (PreferencesTable.action eq action)
         }
@@ -60,5 +71,13 @@ import org.jetbrains.exposed.sql.transactions.inTopLevelTransaction
         if (deletedRowsCount > 1) error("Deleted more than 1 row by customerId = $ownerId and resourceId = $resourceId")
 
         deletedRowsCount > 0
+    }
+
+    suspend fun deleteAllByOwnerId(ownerId: Long): Int = newOrSupportedTransaction {
+        PreferencesTable.deleteWhere { PreferencesTable.ownerId eq ownerId }
+    }
+
+    suspend fun deleteAllByResource(resourceId: Long, actionPrefix: String): Int = newOrSupportedTransaction {
+        PreferencesTable.deleteWhere { (PreferencesTable.resourceId eq resourceId) and (PreferencesTable.action like actionPrefix) }
     }
 }

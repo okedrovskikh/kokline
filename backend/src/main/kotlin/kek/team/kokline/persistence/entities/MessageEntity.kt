@@ -1,21 +1,23 @@
 package kek.team.kokline.persistence.entities
 
+import kek.team.kokline.models.MessagePayload
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import org.jetbrains.exposed.dao.LongEntity
 import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.json.json
 
 object MessageTable : LongIdTable("message") {
     val chatId: Column<EntityID<Long>> = reference("chat_id", ChatTable)
-
-    // TODO переделать на jsonb, чтоб можно было хранить любой содержимое сообщения
-    val payload: Column<String> = text("payload")
+    val payload: Column<MessagePayload> = json<MessagePayload>("payload", Json, serializer())
 }
 
 class MessageEntity(id: EntityID<Long>) : LongEntity(id) {
-    var chat by ChatEntity referencedOn MessageTable.chatId
-    var payload by MessageTable.payload
+    var chat: ChatEntity by ChatEntity referencedOn MessageTable.chatId
+    var payload: MessagePayload by MessageTable.payload
 
     companion object : LongEntityClass<MessageEntity>(MessageTable)
 }

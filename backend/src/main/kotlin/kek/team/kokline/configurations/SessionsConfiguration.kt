@@ -16,6 +16,9 @@ import kotlinx.serialization.serializer
  */
 fun Application.configureSessions() {
     install(Sessions) {
+        /**
+         * cookie.maxAgeInSeconds should be synchronized with RedisSessionStorage expire time
+         */
         cookie<BasicUserSession>("user-session", RedisSessionStorage()) {
             cookie.path = "/"
             cookie.maxAgeInSeconds = 600

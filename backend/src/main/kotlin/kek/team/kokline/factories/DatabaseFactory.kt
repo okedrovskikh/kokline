@@ -5,9 +5,10 @@ import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.config.ApplicationConfig
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transactionManager
+import org.jetbrains.exposed.sql.transactions.experimental.withSuspendTransaction
 
 object DatabaseFactory {
     private lateinit var hikariPool: HikariDataSource
@@ -46,6 +47,14 @@ object DatabaseFactory {
     })
 }
 
+private val transactionLevel: Int get() = TransactionManager.manager.defaultIsolationLevel
+
+private val currentTransaction: Transaction get() = TransactionManager.current()
+
+private val currentTransactionOrNew: Transaction get() = TransactionManager.currentOrNew(transactionLevel)
+
 suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }
 
-val transactionLevel: Int get() = TransactionManager.manager.defaultIsolationLevel
+suspend fun <T> supportedTransaction(block: suspend () -> T): T = currentTransaction.withSuspendTransaction { block() }
+
+suspend fun <T> newOrSupportedTransaction(block: suspend () -> T): T = currentTransactionOrNew.withSuspendTransaction { block() }

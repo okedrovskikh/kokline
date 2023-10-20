@@ -41,20 +41,15 @@ fun Route.messageRouting() {
         authenticate(messageEditSession) {
             put("") {
                 val request = call.receive<MessageEditRequest>()
-                val message = service.edit(request)
-
-                if (message == null) {
-                    call.respond(HttpStatusCode.NotFound, "No message with id ${request.id}")
-                } else {
-                    call.respond(HttpStatusCode.Accepted, message)
-                }
+                service.edit(request)
+                call.respond(HttpStatusCode.OK)
             }
         }
         authenticate(messageDeleteSession) {
             delete("{id?}") {
                 val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
-                val deleted = service.deleteById(id)
-                call.respond(if (deleted) HttpStatusCode.Accepted else HttpStatusCode.NotFound)
+                service.deleteById(id)
+                call.respond(HttpStatusCode.OK)
             }
         }
     }

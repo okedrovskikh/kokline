@@ -7,39 +7,61 @@ import kek.team.kokline.models.Chat
 import kek.team.kokline.models.ChatCreateRequest
 import kek.team.kokline.models.ChatEditRequest
 import kek.team.kokline.models.PreferenceDescription
+import kek.team.kokline.persistence.entities.UserEntity
 import kek.team.kokline.persistence.repositories.ChatRepository
-import kek.team.kokline.persistence.repositories.UserRepository
+import kek.team.kokline.redis.events.Events
 import kek.team.kokline.redis.publisher.MessagePublisher
+import kek.team.kokline.security.actions.ActionPrefixes.CHAT
+import kek.team.kokline.security.actions.Actions.CHAT_READ
+import kek.team.kokline.security.actions.Actions.CHAT_EDIT
+import kek.team.kokline.security.actions.Actions.CHAT_DELETE
 import kek.team.kokline.service.security.PreferencesService
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import kek.team.kokline.support.utils.toSizedCollection
 
 class ChatService(
     private val chatRepository: ChatRepository,
-    // private val userRepository: UserRepository,
     private val mapper: ChatMapper,
     private val preferencesService: PreferencesService,
 ) {
 
     suspend fun create(userId: Long, request: ChatCreateRequest): Chat = dbQuery {
-        // val user = userRepository.findByIdWithChats(userId) ?: error("Not found user by id after auth")
         val participants = (request.users + userId).toSet()
         val chat = chatRepository.create(request.name, participants)
-        MessagePublisher.publish(requireNotNull(chat.id).toString(), "events:chat:create")
         mapper.mapToModel(chat).also {
-            preferencesService.create(PreferenceDescription("chat:read", participants, listOf(requireNotNull(it.id))))
-            preferencesService.create(PreferenceDescription("chat:edit", listOf(userId), listOf(requireNotNull(it.id))))
-            preferencesService.create(PreferenceDescription("chat:delete", listOf(userId), listOf(requireNotNull(it.id))))
+            val preferences = listOf(
+                PreferenceDescription(CHAT_READ.actionName, participants, listOf(requireNotNull(it.id))),
+                PreferenceDescription(CHAT_EDIT.actionName, listOf(userId), listOf(requireNotNull(it.id))),
+                PreferenceDescription(CHAT_DELETE.actionName, listOf(userId), listOf(requireNotNull(it.id)))
+            )
+            preferencesService.createAll(preferences)
+            MessagePublisher.publish(requireNotNull(chat.id).toString(), Events.CHAT_CREATE.eventName)
         }
     }
 
     suspend fun getById(id: Long): Chat = dbQuery { chatRepository.findById(id)?.let(mapper::mapToModel) }
         ?: throw NotFoundException("Not found chat by id: $id")
 
-    suspend fun edit(request: ChatEditRequest): Boolean = chatRepository.edit(request.id, request.name).also {
-        if (it) MessagePublisher.publish(request.id.toString(), "events:chat:edit")
+    suspend fun edit(ownerId: Long, request: ChatEditRequest): Unit = dbQuery {
+        val chat = chatRepository.findById(request.id) ?: throw NotFoundException("Not found chat by id: ${request.id}")
+
+        val chatUsersSet = chat.users.map { it.id.value }.toSet()
+        val requestUsersSet = (request.users + ownerId).toSet()
+
+        val removedUsers = chatUsersSet - requestUsersSet
+        val addedUsers = requestUsersSet - chatUsersSet
+
+        chat.name = request.name
+        chat.users = requestUsersSet.map { UserEntity[it] }.toSizedCollection()
+
+        preferencesService.create(PreferenceDescription(CHAT_READ.actionName, addedUsers, listOf(chat.id.value)))
+        preferencesService.deleteUserPreference(PreferenceDescription(CHAT_READ.actionName, removedUsers, listOf(chat.id.value)))
+        MessagePublisher.publish(chat.id.value.toString(), Events.CHAT_EDIT.eventName)
     }
 
-    suspend fun deleteById(id: Long): Boolean = chatRepository.deleteById(id).also {
-        if (it) MessagePublisher.publish(id.toString(), "events:chat:delete")
+    suspend fun deleteById(id: Long): Unit = dbQuery {
+        val chat = chatRepository.findById(id) ?: throw NotFoundException("Not found chat by id: $id")
+        preferencesService.deleteAllPreferencesByResource(chat.id.value, CHAT.actionPrefix)
+        chat.delete()
+        MessagePublisher.publish(id.toString(), Events.CHAT_DELETE.eventName)
     }
 }
