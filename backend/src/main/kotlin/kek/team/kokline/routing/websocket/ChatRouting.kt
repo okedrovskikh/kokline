@@ -11,12 +11,13 @@ import io.ktor.server.websocket.webSocket
 import io.ktor.utils.io.CancellationException
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.close
-import kek.team.kokline.factories.RedisFactory
 import kek.team.kokline.coroutines.coroutinePool
 import kek.team.kokline.models.WebSocketMessageCreateRequest
 import kek.team.kokline.coroutines.ChatSession
 import kek.team.kokline.coroutines.ChatSessionContext
+import kek.team.kokline.factories.MessageConsumerFactory
 import kek.team.kokline.mappers.ExceptionsMapper
+import kek.team.kokline.redis.events.Events
 import kek.team.kokline.service.message.MessageService
 import kek.team.kokline.security.sessions.BasicUserSession
 import kek.team.kokline.support.utils.loggingCoroutineExceptionHandler
@@ -26,7 +27,6 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import org.koin.ktor.ext.inject
-import redis.clients.jedis.JedisPubSub
 
 private val logger = KotlinLogging.logger { }
 private val loggingHandler = loggingCoroutineExceptionHandler(logger)
@@ -53,32 +53,6 @@ fun Route.chatRouting() {
             )
             val userId = user.id
 
-            // TODO подумать как это можно вынести в отдельный класс с использованием сессии
-            val pubSub = object : JedisPubSub() {
-
-                override fun onMessage(channel: String?, event: String?) {
-                    launch(coroutinePool) {
-                        supervisorScope {
-                            launch(loggingHandler) {
-                                if (channel == null || event == null) {
-                                    // скорее всего этого не будет, но на всякий случай сделано
-                                    logger.warn { "Channel or message eq null" }
-                                    return@launch
-                                }
-
-                                val ids = event.split(":")
-
-                                if (chatId == ids.first().toLong()) {
-                                    val message = messageService.getById(ids[1].toLong())
-                                    sendSerialized(message)
-                                }
-                            }
-                        }
-                    }
-                }
-
-            }
-
             val publisherJob = CoroutineScope(coroutinePool + ChatSessionContext(ChatSession(chatId, userId))).launch {
                 supervisorScope {
                     val sendingHandler = CoroutineExceptionHandler { _, th ->
@@ -93,18 +67,31 @@ fun Route.chatRouting() {
                 }
             }
 
-            val subscriberJob = CoroutineScope(coroutinePool + ChatSessionContext(ChatSession(chatId, userId))).launch {
-                RedisFactory.jedisPool.subscribe(pubSub, "events:chat:message:create")
+            val subJob = CoroutineScope(coroutinePool + ChatSessionContext(ChatSession(chatId, userId))).launch {
+                val consumer = MessageConsumerFactory.createConsumer(Events.CHAT_MESSAGE_CREATE.eventName)
+
+                supervisorScope {
+                    while (consumer.isActive()) {
+                        val message = consumer.getMessage()
+                        launch(loggingHandler) {
+                            val ids = message.split(":")
+
+                            if (chatId == ids.first().toLong()) {
+                                val message = messageService.getById(ids[1].toLong())
+                                sendSerialized(message)
+                            }
+                        }
+                    }
+                }
             }
 
             closeReason.invokeOnCompletion {
                 publisherJob.cancel(CancellationException("Connection closed"))
-                subscriberJob.cancel(CancellationException("Connection closed"))
-                pubSub.unsubscribe()
+                subJob.cancel(CancellationException("Connection closed"))
             }
 
             closeReason.await()
-            listOf(publisherJob, subscriberJob).joinAll()
+            listOf(publisherJob, subJob).joinAll()
         }
     }
 }

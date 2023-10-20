@@ -1,10 +1,36 @@
 package kek.team.kokline.models
 
-data class MessagePayload(val text: String)
+import kotlinx.serialization.Serializable
 
-// у payload'а появиться формат, но какой пока не понятно
-data class Message(val id: Long?, val payload: String, val chatId: Long)
+@Serializable
+class MessagePayload(val text: String?, val binary: ByteArray?, val messageRefId: Long?) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MessagePayload
+
+        if (text != other.text) return false
+        if (binary != null) {
+            if (other.binary == null) return false
+            if (!binary.contentEquals(other.binary)) return false
+        } else if (other.binary != null) return false
+        if (messageRefId != other.messageRefId) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = text?.hashCode() ?: 0
+        result = 31 * result + (binary?.contentHashCode() ?: 0)
+        result = 31 * result + (messageRefId?.hashCode() ?: 0)
+        return result
+    }
+}
+
+data class Message(val id: Long?, val payload: MessagePayload, val chatId: Long)
 
 data class WebSocketMessageCreateRequest(val payload: MessagePayload)
 
-data class MessageEditRequest(val id: Long, val payload: String)
+data class MessageEditRequest(val id: Long, val payload: MessagePayload)

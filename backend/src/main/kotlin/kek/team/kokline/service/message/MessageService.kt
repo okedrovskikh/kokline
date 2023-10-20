@@ -9,7 +9,11 @@ import kek.team.kokline.models.PreferenceDescription
 import kek.team.kokline.models.WebSocketMessageCreateRequest
 import kek.team.kokline.persistence.repositories.ChatRepository
 import kek.team.kokline.persistence.repositories.MessageRepository
+import kek.team.kokline.redis.events.Events
 import kek.team.kokline.redis.publisher.MessagePublisher
+import kek.team.kokline.security.actions.ActionPrefixes.MESSAGE
+import kek.team.kokline.security.actions.Actions.MESSAGE_EDIT
+import kek.team.kokline.security.actions.Actions.MESSAGE_DELETE
 import kek.team.kokline.service.security.PreferencesService
 
 class MessageService(
@@ -20,14 +24,14 @@ class MessageService(
 ) {
     suspend fun create(request: WebSocketMessageCreateRequest, chatId: Long, userId: Long): Message = dbQuery {
         val chat = chatRepository.findById(chatId) ?: throw NotFoundException("Not found chat by id: $chatId")
-        val message = repository.create(request.payload.text, chat)
+        val message = repository.create(request.payload, chat)
         mapper.mapToModel(message).also {
             val preferences = listOf(
-                PreferenceDescription("message:edit", listOf(userId), listOf(requireNotNull(it.id))),
-                PreferenceDescription("message:delete", listOf(userId), listOf(requireNotNull(it.id)))
+                PreferenceDescription(MESSAGE_EDIT.actionName, listOf(userId), listOf(requireNotNull(it.id))),
+                PreferenceDescription(MESSAGE_DELETE.actionName, listOf(userId), listOf(requireNotNull(it.id)))
             )
             preferencesService.createAll(preferences)
-            MessagePublisher.publish("${chat.id}:${message.id}", "events:chat:message:create")
+            MessagePublisher.publish("${chat.id}:${message.id}", Events.CHAT_MESSAGE_CREATE.eventName)
         }
     }
 
@@ -40,12 +44,12 @@ class MessageService(
     suspend fun edit(request: MessageEditRequest): Unit = dbQuery {
         val message = repository.findById(request.id) ?: throw NotFoundException("Not found message by id: ${request.id}")
         message.payload = request.payload
-        MessagePublisher.publish(message.id.value.toString(), "events:message:edit")
+        MessagePublisher.publish(message.id.value.toString(), Events.MESSAGE_EDIT.eventName)
     }
 
     suspend fun deleteById(id: Long): Unit = dbQuery {
         repository.deleteById(id)
-        preferencesService.deleteAllPreferencesByResource(id, "message:")
-        MessagePublisher.publish(id.toString(), "events:message:delete")
+        preferencesService.deleteAllPreferencesByResource(id, MESSAGE.actionPrefix)
+        MessagePublisher.publish(id.toString(), Events.MESSAGE_DELETE.eventName)
     }
 }

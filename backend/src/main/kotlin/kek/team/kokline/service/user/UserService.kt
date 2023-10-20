@@ -8,7 +8,10 @@ import kek.team.kokline.models.User
 import kek.team.kokline.models.UserCreateRequest
 import kek.team.kokline.models.UserEditRequest
 import kek.team.kokline.persistence.repositories.UserRepository
+import kek.team.kokline.redis.events.Events
 import kek.team.kokline.redis.publisher.MessagePublisher
+import kek.team.kokline.security.actions.Actions.USER_EDIT
+import kek.team.kokline.security.actions.Actions.USER_DELETE
 import kek.team.kokline.service.security.PreferencesService
 
 class UserService(
@@ -20,8 +23,8 @@ class UserService(
     suspend fun create(request: UserCreateRequest): User = dbQuery {
         repository.create(request.nickname, request.credits.encodeToByteArray()).let(mapper::mapToUser).also {
             val preferences = listOf(
-                PreferenceDescription("user:edit", listOf(it.id), listOf(it.id)),
-                PreferenceDescription("user:delete", listOf(it.id), listOf(it.id))
+                PreferenceDescription(USER_EDIT.actionName, listOf(it.id), listOf(it.id)),
+                PreferenceDescription(USER_DELETE.actionName, listOf(it.id), listOf(it.id))
             )
             preferencesService.createAll(preferences)
         }
@@ -32,14 +35,14 @@ class UserService(
 
     suspend fun edit(id: Long, request: UserEditRequest): Unit = dbQuery {
         repository.edit(id, request.nickname).also {
-            MessagePublisher.publish(id.toString(), "events:user:edit")
+            MessagePublisher.publish(id.toString(), Events.USER_EDIT.eventName)
         }
     }
 
     suspend fun deleteById(id: Long): Unit = dbQuery {
         repository.deleteById(id).also {
             preferencesService.deleteAllUserPreferences(id)
-            MessagePublisher.publish(id.toString(), "events:user:delete")
+            MessagePublisher.publish(id.toString(), Events.USER_DELETE.eventName)
         }
     }
 }

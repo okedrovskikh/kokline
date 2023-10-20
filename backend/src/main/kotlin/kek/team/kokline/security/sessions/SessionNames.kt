@@ -1,13 +1,5 @@
 package kek.team.kokline.security.sessions
 
-import kek.team.kokline.security.actions.Actions.USER_EDIT
-import kek.team.kokline.security.actions.Actions.USER_DELETE
-import kek.team.kokline.security.actions.Actions.CHAT_READ
-import kek.team.kokline.security.actions.Actions.CHAT_EDIT
-import kek.team.kokline.security.actions.Actions.CHAT_DELETE
-import kek.team.kokline.security.actions.Actions.MESSAGE_EDIT
-import kek.team.kokline.security.actions.Actions.MESSAGE_DELETE
-
 const val basicSession = "basic-session"
 const val userSession = "user-session"
 
@@ -20,15 +12,3 @@ const val chatDeleteSession = "chat-delete-session"
 
 const val messageEditSession = "message-edit-session"
 const val messageDeleteSession = "message-delete-session"
-
-private val actionBySessionMap = mapOf(
-    userEditSession to USER_EDIT,
-    userDeleteSession to USER_DELETE,
-    chatReadSession to CHAT_READ,
-    chatEditSession to CHAT_EDIT,
-    chatDeleteSession to CHAT_DELETE,
-    messageEditSession to MESSAGE_EDIT,
-    messageDeleteSession to MESSAGE_DELETE
-)
-
-fun getActionBySessionName(sessionName: String): String = requireNotNull(actionBySessionMap[sessionName]).actionName
