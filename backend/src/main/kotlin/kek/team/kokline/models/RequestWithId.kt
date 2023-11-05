@@ -3,4 +3,4 @@ package kek.team.kokline.models
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class RequestWithId(val id: Long)
+data class RequestWithId(val id: Long)

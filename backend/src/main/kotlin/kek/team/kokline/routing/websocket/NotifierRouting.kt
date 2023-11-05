@@ -7,7 +7,7 @@ import io.ktor.server.websocket.webSocket
 import io.ktor.utils.io.CancellationException
 import io.ktor.websocket.CloseReason
 import io.ktor.websocket.close
-import kek.team.kokline.coroutines.coroutinePool
+import kek.team.kokline.factories.coroutinePool
 import kek.team.kokline.factories.RedisFactory
 import kek.team.kokline.service.events.EventsService
 import kotlinx.coroutines.CoroutineScope
@@ -36,7 +36,6 @@ fun Route.notifierRouting() {
                 )
             )
 
-            // TODO подумать как это можно вынести в отдельный класс с использованием сессии
             val pubSub = object : JedisPubSub() {
                 override fun onMessage(channel: String?, event: String?) {
                     try {

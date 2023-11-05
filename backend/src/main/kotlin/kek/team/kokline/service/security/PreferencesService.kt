@@ -20,9 +20,6 @@ class PreferencesService(private val repository: PreferencesRepository, private 
         repository.createAll(preferences)
     }
 
-    /**
-     * Execute one query for getting all resources ids
-     */
     suspend fun findAllUserPreferences(userId: Long): List<PreferenceDescription> = dbQuery {
         val preferencesByActionMap = repository.findAllByOwner(userId).groupByAction()
         preferencesByActionMap.map { (key, value) -> mapper.mapToDescription(key, value) }

@@ -1,20 +1,13 @@
 package kek.team.kokline.service.security
 
-import kek.team.kokline.models.Preference
-import kek.team.kokline.models.basicPreference
-import kek.team.kokline.security.sessions.BasicUserSession
+import kek.team.kokline.models.BasePreference
+import kek.team.kokline.security.sessions.AuthSession
 
 class SecurityService(private val preferencesService: PreferencesService) {
 
-    suspend fun createSession(userId: Long): BasicUserSession {
-        val preferencesDescriptions = preferencesService.findAllUserPreferences(userId)
-        val preferences = preferencesDescriptions.flatMap { description ->
-            description.resourcesId.map { Preference(it, description.action) } + basicPreference()
-        }
-        return BasicUserSession(userId, preferences)
-    }
+    fun createSession(userId: Long): AuthSession = AuthSession(userId)
 
-    fun validate(session: BasicUserSession, action: Preference): Boolean = session.preferences.contains(action)
+    fun validate(session: AuthSession, action: BasePreference): Boolean = session.preferences.contains(action)
 
     suspend fun haveAccessToActionWithResource(userId: Long, resourceId: Long, action: String): Boolean {
         val preferences = preferencesService.findAllUserPreferenceByResource(userId, resourceId, action)

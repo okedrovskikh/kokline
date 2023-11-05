@@ -37,6 +37,10 @@ class MessageService(
 
     suspend fun findAllByChatId(id: Long): List<Message> = dbQuery { repository.findAllByChatId(id).map(mapper::mapToModel) }
 
+    suspend fun findPage(chatId: Long, currentPage: Long, pageSize: Int): List<Message> = dbQuery {
+        repository.findPageByChatId(chatId, currentPage, pageSize).map(mapper::mapToModel)
+    }
+
     suspend fun getById(id: Long): Message = dbQuery {
         repository.findById(id)?.let(mapper::mapToModel)
     } ?: throw NotFoundException("Not found message by id: $id")

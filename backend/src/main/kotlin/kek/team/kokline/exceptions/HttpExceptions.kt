@@ -10,7 +10,7 @@ sealed class InternalServerException(
     val httpStatusCode: HttpStatusCode,
     message: String? = null,
     cause: Throwable? = null
-) : KoklineExceptions(message, cause)
+) : KoklineException(message, cause)
 
 class NotFoundException(message: String, cause: Throwable? = null) : InternalServerException(NotFound, message, cause)
 

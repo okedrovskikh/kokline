@@ -5,7 +5,7 @@ import io.ktor.server.application.install
 import io.ktor.server.sessions.Sessions
 import io.ktor.server.sessions.cookie
 import io.ktor.server.sessions.serialization.KotlinxSessionSerializer
-import kek.team.kokline.security.sessions.BasicUserSession
+import kek.team.kokline.security.sessions.AuthSession
 import kek.team.kokline.security.sessions.RedisSessionStorage
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
@@ -19,7 +19,7 @@ fun Application.configureSessions() {
         /**
          * cookie.maxAgeInSeconds should be synchronized with RedisSessionStorage expire time
          */
-        cookie<BasicUserSession>("user-session", RedisSessionStorage()) {
+        cookie<AuthSession>("user-session", RedisSessionStorage()) {
             cookie.path = "/"
             cookie.maxAgeInSeconds = 600
             serializer = KotlinxSessionSerializer(serializer(), Json)

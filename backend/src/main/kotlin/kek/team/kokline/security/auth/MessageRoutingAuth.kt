@@ -8,10 +8,13 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import kek.team.kokline.models.Preference
 import kek.team.kokline.models.RequestWithId
-import kek.team.kokline.security.sessions.BasicUserSession
+import kek.team.kokline.security.actions.Actions.MESSAGE_EDIT
+import kek.team.kokline.security.actions.Actions.MESSAGE_DELETE
+import kek.team.kokline.security.sessions.AuthSession
 import kek.team.kokline.security.sessions.messageDeleteSession
 import kek.team.kokline.security.sessions.messageEditSession
 import kek.team.kokline.service.security.SecurityService
+import kek.team.kokline.support.utils.getIdOrNull
 import org.koin.ktor.ext.inject
 
 fun Application.configureMessageApiAuth() {
@@ -19,10 +22,10 @@ fun Application.configureMessageApiAuth() {
     val securityService: SecurityService by inject<SecurityService>()
 
     authentication {
-        session<BasicUserSession>(messageEditSession) {
+        session<AuthSession>(messageEditSession) {
             validate { session ->
                 val request = receive<RequestWithId>()
-                if (securityService.validate(session, Preference(request.id, "message:edit"))) {
+                if (securityService.validate(session, Preference(request.id, MESSAGE_EDIT))) {
                     session
                 } else {
                     null
@@ -32,9 +35,9 @@ fun Application.configureMessageApiAuth() {
                 call.respond(UnauthorizedResponse())
             }
         }
-        session<BasicUserSession>(messageDeleteSession) {
+        session<AuthSession>(messageDeleteSession) {
             validate { session ->
-                if (securityService.validate(session, Preference(parameters["id"]?.toLongOrNull(), "message:delete"))) {
+                if (securityService.validate(session, Preference(getIdOrNull(), MESSAGE_DELETE))) {
                     session
                 } else {
                     null

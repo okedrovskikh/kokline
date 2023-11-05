@@ -10,13 +10,15 @@ import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
-import kek.team.kokline.exceptions.BadRequestException
 import kek.team.kokline.models.MessageEditRequest
 import kek.team.kokline.security.sessions.basicSession
 import kek.team.kokline.security.sessions.chatReadSession
 import kek.team.kokline.security.sessions.messageDeleteSession
 import kek.team.kokline.security.sessions.messageEditSession
 import kek.team.kokline.service.message.MessageService
+import kek.team.kokline.support.utils.authAndCallMethod
+import kek.team.kokline.support.utils.getId
+import kek.team.kokline.support.utils.mapOrThrowBadRequest
 import org.koin.ktor.ext.inject
 
 fun Route.messageRouting() {
@@ -25,29 +27,36 @@ fun Route.messageRouting() {
 
     route("/messages") {
         authenticate(basicSession) {
-            get("{id?}") {
-                val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
+            authAndCallMethod(::get, "/{id?}") {
+                val id = call.getId()
                 val message = service.getById(id)
                 call.respond(message)
             }
         }
         authenticate(chatReadSession) {
-            get("/fromChat/{id?}") {
-                val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
+            authAndCallMethod(::get, "/fromChat/{id?}/all") {
+                val id = call.getId()
                 val messages = service.findAllByChatId(id)
+                call.respond(messages)
+            }
+            authAndCallMethod(::get, "/fromChat/{id?}") {
+                val id = call.getId()
+                val pageNumber = call.request.rawQueryParameters["page"].mapOrThrowBadRequest { requireNotNull(it).toLong() }
+                val pageSize = call.request.rawQueryParameters["pageSize"].mapOrThrowBadRequest { requireNotNull(it).toInt() }
+                val messages = service.findPage(id, pageNumber, pageSize)
                 call.respond(messages)
             }
         }
         authenticate(messageEditSession) {
-            put("") {
+            authAndCallMethod(::put, "") {
                 val request = call.receive<MessageEditRequest>()
                 service.edit(request)
                 call.respond(HttpStatusCode.OK)
             }
         }
         authenticate(messageDeleteSession) {
-            delete("{id?}") {
-                val id = call.parameters["id"]?.toLongOrNull() ?: throw BadRequestException("Missing or invalid id")
+            authAndCallMethod(::delete, "/{id?}") {
+                val id = call.getId()
                 service.deleteById(id)
                 call.respond(HttpStatusCode.OK)
             }

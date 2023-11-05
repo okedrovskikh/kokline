@@ -1,9 +1,23 @@
 package kek.team.kokline.models
 
-import kek.team.kokline.support.serialization.DoubleAsLongSerializer
-import kotlinx.serialization.Serializable
+import kek.team.kokline.security.actions.Actions
+import kek.team.kokline.security.actions.Actions.BASIC
 
-@Serializable
-data class Preference(@Serializable(with = DoubleAsLongSerializer::class) val resourceId: Long? = null, val action: String)
+sealed class BasePreference {
+    abstract val resourceId: Long?
+    abstract val action: String
+}
 
-fun basicPreference() = Preference(null, "basic")
+data class Preference(override val resourceId: Long? = null, override val action: String) : BasePreference() {
+
+    constructor(resourceId: Long?, action: Actions) : this(resourceId, action.actionName)
+}
+
+data object BasicPreference : BasePreference() {
+    override val resourceId: Long? = null
+    override val action: String = BASIC.actionName
+}
+
+
+@Deprecated("Use BasicPreference", ReplaceWith("BasicPreference"))
+fun basicPreference() = BasicPreference

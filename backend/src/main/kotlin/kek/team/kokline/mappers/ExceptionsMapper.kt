@@ -1,8 +1,9 @@
 package kek.team.kokline.mappers
 
+import kek.team.kokline.exceptions.CriticalException
+import kek.team.kokline.models.CriticalLevels
 import kek.team.kokline.models.ErrorResponse
 import kek.team.kokline.models.WebSocketErrorResponse
-import kek.team.kokline.models.WebSocketErrorStatus
 
 class ExceptionsMapper {
 
@@ -13,6 +14,6 @@ class ExceptionsMapper {
 
     fun mapToWebSocketError(throwable: Throwable): WebSocketErrorResponse = WebSocketErrorResponse(
         error = mapExceptionToError(throwable),
-        errorStatus = WebSocketErrorStatus.NON_CRITICAL
+        errorStatus = ((throwable as? CriticalException)?.criticalLevel ?: CriticalLevels.NON_CRITICAL).webSocketErrorStatus
     )
 }

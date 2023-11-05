@@ -53,7 +53,7 @@ private val currentTransaction: Transaction get() = TransactionManager.current()
 
 private val currentTransactionOrNew: Transaction get() = TransactionManager.currentOrNew(transactionLevel)
 
-suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }
+suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction { block() }
 
 suspend fun <T> supportedTransaction(block: suspend () -> T): T = currentTransaction.withSuspendTransaction { block() }
 

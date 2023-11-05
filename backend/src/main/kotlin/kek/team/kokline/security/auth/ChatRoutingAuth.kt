@@ -8,11 +8,15 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import kek.team.kokline.models.Preference
 import kek.team.kokline.models.RequestWithId
-import kek.team.kokline.security.sessions.BasicUserSession
+import kek.team.kokline.security.actions.Actions.CHAT_EDIT
+import kek.team.kokline.security.actions.Actions.CHAT_READ
+import kek.team.kokline.security.actions.Actions.CHAT_DELETE
+import kek.team.kokline.security.sessions.AuthSession
 import kek.team.kokline.security.sessions.chatDeleteSession
 import kek.team.kokline.security.sessions.chatEditSession
 import kek.team.kokline.security.sessions.chatReadSession
 import kek.team.kokline.service.security.SecurityService
+import kek.team.kokline.support.utils.getIdOrNull
 import org.koin.ktor.ext.inject
 
 fun Application.configureChatApiAuth() {
@@ -20,10 +24,10 @@ fun Application.configureChatApiAuth() {
     val securityService: SecurityService by inject<SecurityService>()
 
     authentication {
-        session<BasicUserSession>(chatEditSession) {
+        session<AuthSession>(chatEditSession) {
             validate { session ->
                 val request = receive<RequestWithId>()
-                if (securityService.validate(session, Preference(request.id, "chat:edit"))) {
+                if (securityService.validate(session, Preference(request.id, CHAT_EDIT))) {
                     session
                 } else {
                     null
@@ -33,9 +37,9 @@ fun Application.configureChatApiAuth() {
                 call.respond(UnauthorizedResponse())
             }
         }
-        session<BasicUserSession>(chatDeleteSession) {
+        session<AuthSession>(chatDeleteSession) {
             validate { session ->
-                if (securityService.validate(session, Preference(parameters["id"]?.toLongOrNull(), "chat:delete"))) {
+                if (securityService.validate(session, Preference(getIdOrNull(), CHAT_DELETE))) {
                     session
                 } else {
                     null
@@ -45,9 +49,9 @@ fun Application.configureChatApiAuth() {
                 call.respond(UnauthorizedResponse())
             }
         }
-        session<BasicUserSession>(chatReadSession) {
+        session<AuthSession>(chatReadSession) {
             validate { session ->
-                if (securityService.validate(session, Preference(parameters["id"]?.toLongOrNull(), "chat:read"))) {
+                if (securityService.validate(session, Preference(getIdOrNull(), CHAT_READ))) {
                     session
                 } else {
                     null

@@ -5,6 +5,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 class MessagePayload(val text: String?, val binary: ByteArray?, val messageRefId: Long?) {
 
+    override fun hashCode(): Int {
+        var result = text?.hashCode() ?: 0
+        result = 31 * result + (binary?.contentHashCode() ?: 0)
+        result = 31 * result + (messageRefId?.hashCode() ?: 0)
+        return result
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -19,13 +26,6 @@ class MessagePayload(val text: String?, val binary: ByteArray?, val messageRefId
         if (messageRefId != other.messageRefId) return false
 
         return true
-    }
-
-    override fun hashCode(): Int {
-        var result = text?.hashCode() ?: 0
-        result = 31 * result + (binary?.contentHashCode() ?: 0)
-        result = 31 * result + (messageRefId?.hashCode() ?: 0)
-        return result
     }
 }
 

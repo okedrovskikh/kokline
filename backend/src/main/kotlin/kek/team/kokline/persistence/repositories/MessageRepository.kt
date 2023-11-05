@@ -3,7 +3,6 @@ package kek.team.kokline.persistence.repositories
 import kek.team.kokline.persistence.entities.ChatEntity
 import kek.team.kokline.persistence.entities.MessageEntity
 import kek.team.kokline.persistence.entities.MessageTable
-import kek.team.kokline.factories.dbQuery
 import kek.team.kokline.factories.newOrSupportedTransaction
 import kek.team.kokline.models.MessagePayload
 import org.jetbrains.exposed.sql.SizedIterable
@@ -22,6 +21,14 @@ class MessageRepository {
 
     suspend fun findAllByChatId(id: Long): SizedIterable<MessageEntity> = newOrSupportedTransaction {
         MessageEntity.find { MessageTable.chatId eq id }
+    }
+
+    suspend fun findPageByChatId(
+        chatId: Long,
+        currentPageNumber: Long,
+        pageSize: Int
+    ): SizedIterable<MessageEntity> = newOrSupportedTransaction {
+        MessageEntity.find { MessageTable.chatId eq chatId }.limit(pageSize, pageSize * currentPageNumber)
     }
 
     suspend fun findById(id: Long): MessageEntity? = newOrSupportedTransaction { MessageEntity.findById(id) }
