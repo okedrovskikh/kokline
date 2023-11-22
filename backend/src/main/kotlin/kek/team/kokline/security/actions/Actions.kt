@@ -9,7 +9,7 @@ enum class Actions {
 }
 
 enum class ActionPrefixes {
-    USER, MESSAGE, CHAT;
+    USER, MESSAGE, CHAT, BASIC;
 
     val actionPrefix: String = name.lowercase() + ":"
 }
