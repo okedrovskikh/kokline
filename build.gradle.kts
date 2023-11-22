@@ -1,8 +1,6 @@
-val kotlinVersion: String by project
-val logbackVersion: String by project
-
 plugins {
-    kotlin("jvm") version "1.9.10"
+    kotlin("jvm") version "1.9.10" apply false
+    kotlin("js") version "1.9.10" apply false
 }
 
 allprojects {
@@ -11,16 +9,5 @@ allprojects {
 
     repositories {
         mavenCentral()
-    }
-}
-
-subprojects {
-    apply(plugin = "org.jetbrains.kotlin.jvm")
-
-    dependencies {
-        implementation(group = "ch.qos.logback", name = "logback-classic", version = logbackVersion)
-
-        testImplementation(group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version = kotlinVersion)
-        testImplementation(group = "io.kotest", name = "kotest-assertions-core", version = "4.6.2")
     }
 }

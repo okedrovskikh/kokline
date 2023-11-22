@@ -50,5 +50,9 @@ dependencies {
 
     implementation(group = "redis.clients", name = "jedis", version = jedisVersion)
 
+    implementation(group = "ch.qos.logback", name = "logback-classic", version = logbackVersion)
     implementation(group = "io.github.oshai", name = "kotlin-logging", version = kloggingVersion)
+
+    testImplementation(group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version = kotlinVersion)
+    testImplementation(group = "io.kotest", name = "kotest-assertions-core", version = "4.6.2")
 }
