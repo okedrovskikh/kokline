@@ -1,4 +1,4 @@
-package kek.team.kokline
+package kek.team.kokline.auth
 
 import csstype.Position
 import csstype.px

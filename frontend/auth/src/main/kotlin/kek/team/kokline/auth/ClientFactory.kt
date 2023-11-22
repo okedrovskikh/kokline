@@ -1,9 +1,7 @@
-package kek.team.kokline
+package kek.team.kokline.auth
 
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.BasicAuthCredentials
-import io.ktor.client.plugins.auth.providers.basic
 
 object ClientFactory {
     const val baseApiUrl: String = "/api/v1"

@@ -1,10 +1,10 @@
-package kek.team.kokline
+package kek.team.kokline.auth
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.header
 import io.ktor.client.request.post
-import kek.team.kokline.ClientFactory.baseApiUrl
+import kek.team.kokline.auth.ClientFactory.baseApiUrl
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
