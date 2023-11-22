@@ -6,7 +6,7 @@ plugins {
 // https://stackoverflow.com/questions/63602921/kotlin-js-different-output-js-files-for-different-modules
 kotlin {
     js {
-        moduleName = "auth"
+        moduleName = "users"
         browser {
             commonWebpackConfig(Action {
                 cssSupport {

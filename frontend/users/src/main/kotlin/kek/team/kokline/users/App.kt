@@ -1,29 +1,27 @@
-package kek.team.kokline.auth
+package kek.team.kokline.users
 
 import csstype.Position
 import csstype.px
 import emotion.react.css
 import react.FC
 import react.Props
-import react.dom.html.ReactHTML.div
-import react.dom.html.ReactHTML.h1
-import react.dom.html.ReactHTML.h3
-import react.dom.html.ReactHTML.img
+import react.dom.html.ReactHTML
+
 
 val app = FC<Props> {
-    h1 {
-        +"Hello, React+Kotlin/JS! Auth module"
+    ReactHTML.h1 {
+        +"Hello, React+Kotlin/JS! App module"
     }
-    div {
+    ReactHTML.div {
         css {
             position = Position.absolute
             top = 10.px
             right = 10.px
         }
-        h3 {
+        ReactHTML.h3 {
             +"John Doe: Building and breaking things"
         }
-        img {
+        ReactHTML.img {
             src = "https://via.placeholder.com/640x360.png?text=Video+Player+Placeholder"
         }
     }
