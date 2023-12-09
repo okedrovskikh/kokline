@@ -12,16 +12,20 @@ import org.jetbrains.exposed.sql.update
 
 class UserRepository {
 
-    suspend fun create(nickname: String, credits: ByteArray): UserEntity = newOrSupportedTransaction {
-        withContext(Dispatchers.IO) {
-            UserEntity.new {
-                this.nickname = nickname
-                this.credits = credits
+    suspend fun create(nickname: String, credits: ByteArray, name: String, avatarUrl: String): UserEntity =
+        newOrSupportedTransaction {
+            withContext(Dispatchers.IO) {
+                UserEntity.new {
+                    this.nickname = nickname
+                    this.credits = credits
+                    this.name = name
+                    this.avatarUrl = avatarUrl
+                }
             }
         }
-    }
 
-    suspend fun findById(id: Long): UserEntity? = newOrSupportedTransaction { withContext(Dispatchers.IO) { UserEntity.findById(id) } }
+    suspend fun findById(id: Long): UserEntity? =
+        newOrSupportedTransaction { withContext(Dispatchers.IO) { UserEntity.findById(id) } }
 
     suspend fun findByCredits(nickname: String, credits: ByteArray): UserEntity? = newOrSupportedTransaction {
         withContext(Dispatchers.IO) {
@@ -33,8 +37,14 @@ class UserRepository {
         }
     }
 
-    suspend fun edit(id: Long, nickname: String): Boolean = newOrSupportedTransaction {
-        val changedRows = withContext(Dispatchers.IO) { UserTable.update({ UserTable.id eq id }) { it[UserTable.nickname] = nickname } }
+    suspend fun edit(id: Long, nickname: String, name: String, avatarUrl: String): Boolean = newOrSupportedTransaction {
+        val changedRows = withContext(Dispatchers.IO) {
+            UserTable.update({ UserTable.id eq id }) {
+                it[UserTable.nickname] = nickname
+                it[UserTable.name] = name
+                it[UserTable.avatarUrl] = avatarUrl
+            }
+        }
 
         if (changedRows > 1) error("Updated more than 1 row by id: $id")
 
