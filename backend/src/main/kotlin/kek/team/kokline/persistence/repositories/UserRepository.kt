@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.update
 
 class UserRepository {
 
-    suspend fun create(nickname: String, credits: ByteArray, name: String, avatarUrl: String): UserEntity =
+    suspend fun create(nickname: String, credits: ByteArray, name: String, avatarUrl: String?): UserEntity =
         newOrSupportedTransaction {
             withContext(Dispatchers.IO) {
                 UserEntity.new {
@@ -37,7 +37,7 @@ class UserRepository {
         }
     }
 
-    suspend fun edit(id: Long, nickname: String, name: String, avatarUrl: String): Boolean = newOrSupportedTransaction {
+    suspend fun edit(id: Long, nickname: String, name: String, avatarUrl: String?): Boolean = newOrSupportedTransaction {
         val changedRows = withContext(Dispatchers.IO) {
             UserTable.update({ UserTable.id eq id }) {
                 it[UserTable.nickname] = nickname

@@ -21,7 +21,7 @@ class UserService(
 ) {
 
     suspend fun create(request: UserCreateRequest): User = dbQuery {
-        repository.create(request.nickname, request.credits.encodeToByteArray()).let(mapper::mapToUser).also {
+        repository.create(request.nickname, request.credits.encodeToByteArray(), request.name, request.avatarUrl).let(mapper::mapToUser).also {
             val preferences = listOf(
                 PreferenceDescription(USER_EDIT.actionName, listOf(it.id), listOf(it.id)),
                 PreferenceDescription(USER_DELETE.actionName, listOf(it.id), listOf(it.id))
@@ -34,7 +34,7 @@ class UserService(
         ?: throw NotFoundException("Not found user with id: $id")
 
     suspend fun edit(id: Long, request: UserEditRequest): Unit = dbQuery {
-        repository.edit(id, request.nickname).also {
+        repository.edit(id, request.nickname, request.name, request.avatarUrl).also {
             MessagePublisher.publish(id.toString(), Events.USER_EDIT.eventName)
         }
     }
