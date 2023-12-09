@@ -15,6 +15,7 @@ services:
     restart: on-failure
     environment:
       POSTGRES_URL: jdbc:postgresql://localhost:5432/kokline
+      REDIS_DNS_NAME: redis
     ports:
       - 8080:8080
     networks:
