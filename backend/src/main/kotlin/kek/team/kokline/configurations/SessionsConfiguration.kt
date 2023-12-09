@@ -19,9 +19,11 @@ fun Application.configureSessions() {
         /**
          * cookie.maxAgeInSeconds should be synchronized with RedisSessionStorage expire time
          */
-        cookie<AuthSession>("user-session", RedisSessionStorage()) {
+        val sessionLifeTime = requireNotNull(this@configureSessions.environment.config.property("session.lifetime").getString().toLong())
+
+        cookie<AuthSession>("user-session", RedisSessionStorage(sessionLifeTime)) {
             cookie.path = "/"
-            cookie.maxAgeInSeconds = 600
+            cookie.maxAgeInSeconds = sessionLifeTime
             serializer = KotlinxSessionSerializer(serializer(), Json)
         }
     }

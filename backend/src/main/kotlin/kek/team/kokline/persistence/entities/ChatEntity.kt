@@ -18,6 +18,5 @@ class ChatEntity(id: EntityID<Long>) : LongEntity(id) {
     var users: SizedIterable<UserEntity> by UserEntity via ChatUsersTable
     var previousChat: ChatEntity? by ChatEntity optionalReferencedOn ChatTable.previousChatId
 
-
     companion object : LongEntityClass<ChatEntity>(ChatTable)
 }
