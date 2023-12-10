@@ -8,11 +8,9 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.delete
 import io.ktor.server.routing.get
-import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import io.ktor.server.sessions.sessions
-import kek.team.kokline.models.UserCreateRequest
 import kek.team.kokline.models.UserEditRequest
 import kek.team.kokline.service.user.UserService
 import kek.team.kokline.security.sessions.basicSession
@@ -28,11 +26,6 @@ fun Route.userRouting() {
     val service: UserService by inject<UserService>()
 
     route("/users") {
-        post("") {
-            val createRequest = call.receive<UserCreateRequest>()
-            val user = service.create(createRequest)
-            call.respond(HttpStatusCode.Created, user)
-        }
         authenticate(basicSession) {
             authAndCallMethod(::get, "/{id?}") {
                 val id = call.getId()
