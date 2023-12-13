@@ -35,6 +35,7 @@ dependencies {
     implementation("io.ktor:ktor-server-host-common-jvm:2.3.4")
     implementation("io.ktor:ktor-server-status-pages-jvm:2.3.4")
     implementation("io.ktor:ktor-server-double-receive-jvm:2.3.4")
+    implementation("io.ktor:ktor-server-cors:2.3.4")
     testImplementation("io.ktor:ktor-server-tests-jvm")
 
     implementation("com.zaxxer:HikariCP:$hikaricpVersion")
