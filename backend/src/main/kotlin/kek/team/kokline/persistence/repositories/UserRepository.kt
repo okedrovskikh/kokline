@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.update
 
 class UserRepository {
@@ -23,6 +24,18 @@ class UserRepository {
                 }
             }
         }
+
+    suspend fun findAll(): List<UserEntity> = newOrSupportedTransaction {
+        withContext(Dispatchers.IO) { UserEntity.all().toList() }
+    }
+
+    suspend fun search(search: String): List<UserEntity> = newOrSupportedTransaction {
+        withContext(Dispatchers.IO) {
+            UserEntity.find {
+                UserTable.nickname like "%$search%" or (UserTable.name like "%$search%")
+            }
+        }.toList()
+    }
 
     suspend fun findById(id: Long): UserEntity? =
         newOrSupportedTransaction { withContext(Dispatchers.IO) { UserEntity.findById(id) } }

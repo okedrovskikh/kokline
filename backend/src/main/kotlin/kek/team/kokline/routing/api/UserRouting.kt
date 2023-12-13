@@ -26,6 +26,21 @@ fun Route.userRouting() {
     val service: UserService by inject<UserService>()
 
     route("/users") {
+        get("") {
+            if (call.request.queryParameters["search"] != null) {
+                val search = call.request.queryParameters["search"]!!
+                call.respond(service.search(search))
+                return@get
+            }
+
+            call.respond(service.getAll())
+        }
+        authenticate(basicSession) {
+            authAndCallMethod(::get, "/me") {
+                val id = authSession().id
+                call.respond(service.getById(id))
+            }
+        }
         authenticate(basicSession) {
             authAndCallMethod(::get, "/{id?}") {
                 val id = call.getId()

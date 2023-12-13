@@ -30,6 +30,10 @@ class UserService(
         }
     }
 
+    suspend fun getAll(): List<User> = dbQuery { repository.findAll().map(mapper::mapToUserWithChats) }
+
+    suspend fun search(search: String): List<User> = dbQuery { repository.search(search).map(mapper::mapToUserWithChats) }
+
     suspend fun getById(id: Long): User = dbQuery { repository.findById(id)?.let(mapper::mapToUserWithChats) }
         ?: throw NotFoundException("Not found user with id: $id")
 

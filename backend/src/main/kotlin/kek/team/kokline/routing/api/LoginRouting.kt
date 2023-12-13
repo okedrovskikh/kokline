@@ -28,7 +28,6 @@ fun Route.authRouting() {
                 call.sessions.set(userSession, session)
                 val user = service.getById(session.id)
                 call.respond(HttpStatusCode.Accepted, user)
-
             }
             post("/logout") {
                 call.sessions.clear(userSession)
