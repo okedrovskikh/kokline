@@ -11,10 +11,11 @@ import org.jetbrains.exposed.sql.SizedIterable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.update
+import java.time.LocalDateTime
 
 class MessageRepository {
 
-    suspend fun create(payload: MessagePayload, chat: ChatEntity, timestamp: String): MessageEntity = newOrSupportedTransaction {
+    suspend fun create(payload: MessagePayload, chat: ChatEntity, timestamp: LocalDateTime): MessageEntity = newOrSupportedTransaction {
         withContext(Dispatchers.IO) {
             MessageEntity.new {
                 this.payload = payload

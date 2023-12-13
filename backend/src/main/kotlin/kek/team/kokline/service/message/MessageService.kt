@@ -16,8 +16,7 @@ import kek.team.kokline.security.actions.ActionPrefixes.MESSAGE
 import kek.team.kokline.security.actions.Actions.MESSAGE_DELETE
 import kek.team.kokline.security.actions.Actions.MESSAGE_EDIT
 import kek.team.kokline.service.security.PreferencesService
-import java.time.Instant
-import java.util.*
+import java.time.LocalDateTime
 
 class MessageService(
     private val repository: MessageRepository,
@@ -27,7 +26,7 @@ class MessageService(
 ) {
     suspend fun create(request: WebSocketMessageCreateRequest, chatId: Long, userId: Long): Message = dbQuery {
         val chat = chatRepository.findById(chatId) ?: throw NotFoundException("Not found chat by id: $chatId")
-        val message = repository.create(request.payload, chat, ISO8601Utils.format(Date.from(Instant.now())))
+        val message = repository.create(request.payload, chat, LocalDateTime.now())
         mapper.mapToModel(message).also {
             val preferences = listOf(
                 PreferenceDescription(MESSAGE_EDIT.actionName, listOf(userId), listOf(requireNotNull(it.id))),
