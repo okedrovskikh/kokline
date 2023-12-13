@@ -3,9 +3,10 @@ package kek.team.kokline.models
 data class Chat(
     val id: Long?,
     val name: String,
-    val users: List<Long>
+    val users: List<Long>,
+    val avatarUrl: String?
 )
 
-data class ChatCreateRequest(val name: String, val users: List<Long>)
+data class ChatCreateRequest(val name: String, val users: List<Long>, val avatarUrl: String?)
 
-data class ChatEditRequest(val id: Long, val name: String, val users: List<Long>)
+data class ChatEditRequest(val id: Long, val name: String, val users: List<Long>, val avatarUrl: String)
