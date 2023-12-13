@@ -5,5 +5,5 @@ import kek.team.kokline.models.Chat
 
 class ChatMapper {
 
-    fun mapToModel(entity: ChatEntity): Chat = Chat(entity.id.value, entity.name)
+    fun mapToModel(entity: ChatEntity): Chat = Chat(entity.id.value, entity.name, entity.users.map { userEntity -> userEntity.id.value })
 }
