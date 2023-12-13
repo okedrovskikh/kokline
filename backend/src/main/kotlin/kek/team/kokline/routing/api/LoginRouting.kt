@@ -26,7 +26,9 @@ fun Route.authRouting() {
             authAndCallMethod(::post, "/login") {
                 val session = authSession()
                 call.sessions.set(userSession, session)
-                call.respond(HttpStatusCode.Accepted)
+                val user = service.getById(session.id)
+                call.respond(HttpStatusCode.Accepted, user)
+
             }
             post("/logout") {
                 call.sessions.clear(userSession)
