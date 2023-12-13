@@ -12,9 +12,7 @@ import kek.team.kokline.persistence.repositories.ChatRepository
 import kek.team.kokline.redis.events.Events
 import kek.team.kokline.redis.publisher.MessagePublisher
 import kek.team.kokline.security.actions.ActionPrefixes.CHAT
-import kek.team.kokline.security.actions.Actions.CHAT_READ
-import kek.team.kokline.security.actions.Actions.CHAT_EDIT
-import kek.team.kokline.security.actions.Actions.CHAT_DELETE
+import kek.team.kokline.security.actions.Actions.*
 import kek.team.kokline.service.security.PreferencesService
 import kek.team.kokline.support.utils.toSizedCollection
 
@@ -41,8 +39,8 @@ class ChatService(
     suspend fun getById(id: Long): Chat = dbQuery { chatRepository.findById(id)?.let(mapper::mapToModel) }
         ?: throw NotFoundException("Not found chat by id: $id")
 
-    suspend fun edit(ownerId: Long, request: ChatEditRequest): Unit = dbQuery {
-        val chat = chatRepository.findById(request.id) ?: throw NotFoundException("Not found chat by id: ${request.id}")
+    suspend fun edit(ownerId: Long, chatId: Long, request: ChatEditRequest): Unit = dbQuery {
+        val chat = chatRepository.findById(chatId) ?: throw NotFoundException("Not found chat by id: ${chatId}")
 
         val chatUsersSet = chat.users.map { it.id.value }.toSet()
         val requestUsersSet = (request.users + ownerId).toSet()
@@ -54,7 +52,13 @@ class ChatService(
         chat.users = requestUsersSet.map { UserEntity[it] }.toSizedCollection()
 
         preferencesService.create(PreferenceDescription(CHAT_READ.actionName, addedUsers, listOf(chat.id.value)))
-        preferencesService.deleteUserPreference(PreferenceDescription(CHAT_READ.actionName, removedUsers, listOf(chat.id.value)))
+        preferencesService.deleteUserPreference(
+            PreferenceDescription(
+                CHAT_READ.actionName,
+                removedUsers,
+                listOf(chat.id.value)
+            )
+        )
         MessagePublisher.publish(chat.id.value.toString(), Events.CHAT_EDIT.eventName)
     }
 

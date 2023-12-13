@@ -14,11 +14,12 @@ import org.jetbrains.exposed.sql.update
 
 class MessageRepository {
 
-    suspend fun create(payload: MessagePayload, chat: ChatEntity): MessageEntity = newOrSupportedTransaction {
+    suspend fun create(payload: MessagePayload, chat: ChatEntity, timestamp: String): MessageEntity = newOrSupportedTransaction {
         withContext(Dispatchers.IO) {
             MessageEntity.new {
                 this.payload = payload
                 this.chat = chat
+                this.timestamp = timestamp
             }
         }
     }

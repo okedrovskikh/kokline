@@ -40,9 +40,10 @@ fun Route.chatRouting() {
             }
         }
         authenticate(chatEditSession) {
-            authAndCallMethod(::put, "") {
+            authAndCallMethod(::put, "/{id?}") {
                 val chat = call.receive<ChatEditRequest>()
-                service.edit(authSession().id, chat)
+                val id = call.getId()
+                service.edit(authSession().id, id, chat)
                 call.respond(HttpStatusCode.OK)
             }
         }

@@ -8,6 +8,7 @@ class MessageMapper {
     fun mapToModel(entity: MessageEntity): Message = Message(
         id = entity.id.value,
         payload = entity.payload,
-        chatId = entity.chat.id.value
+        chatId = entity.chat.id.value,
+        timestamp = entity.timestamp
     )
 }

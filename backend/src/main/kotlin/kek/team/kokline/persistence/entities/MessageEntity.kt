@@ -13,11 +13,13 @@ import org.jetbrains.exposed.sql.json.json
 object MessageTable : LongIdTable("message") {
     val chatId: Column<EntityID<Long>> = reference("chat_id", ChatTable)
     val payload: Column<MessagePayload> = json<MessagePayload>("payload", Json, serializer())
+    var timestamp: Column<String> = text("timestamp")
 }
 
 class MessageEntity(id: EntityID<Long>) : LongEntity(id) {
     var chat: ChatEntity by ChatEntity referencedOn MessageTable.chatId
     var payload: MessagePayload by MessageTable.payload
+    var timestamp: String by MessageTable.timestamp
 
     companion object : LongEntityClass<MessageEntity>(MessageTable)
 }
