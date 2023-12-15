@@ -24,7 +24,7 @@ class ChatService(
 
     suspend fun create(userId: Long, request: ChatCreateRequest): Chat = dbQuery {
         val participants = (request.users + userId).toSet()
-        val chat = chatRepository.create(request.name, participants)
+        val chat = chatRepository.create(request.name, participants, request.avatarUrl)
         mapper.mapToModel(chat).also {
             val preferences = listOf(
                 PreferenceDescription(CHAT_READ.actionName, participants, listOf(requireNotNull(it.id))),
