@@ -9,7 +9,7 @@ class MessageMapper {
 
     fun mapToModel(entity: MessageEntity): Message = Message(
         id = entity.id.value,
-        payload = entity.payload,
+        payload = entity.payload.text.toString(),
         chatId = entity.chat.id.value,
         timestamp = entity.timestamp.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
         userId = entity.sender.id.value

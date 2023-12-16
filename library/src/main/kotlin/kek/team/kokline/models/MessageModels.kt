@@ -29,7 +29,7 @@ class MessagePayload(val text: String?, val binary: ByteArray?, val messageRefId
     }
 }
 
-data class Message(val id: Long?, val payload: MessagePayload, val chatId: Long, val timestamp: String, val userId: Long)
+data class Message(val id: Long?, val payload: String, val chatId: Long, val timestamp: String, val userId: Long)
 
 data class WebSocketMessageCreateRequest(val payload: MessagePayload)
 
