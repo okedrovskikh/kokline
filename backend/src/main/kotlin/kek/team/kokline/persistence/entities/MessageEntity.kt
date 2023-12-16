@@ -8,12 +8,13 @@ import org.jetbrains.exposed.dao.LongEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.ReferenceOption
 import org.jetbrains.exposed.sql.javatime.datetime
 import org.jetbrains.exposed.sql.json.json
 import java.time.LocalDateTime
 
 object MessageTable : LongIdTable("message") {
-    val chatId: Column<EntityID<Long>> = reference("chat_id", ChatTable)
+    val chatId: Column<EntityID<Long>> = reference("chat_id", ChatTable, onDelete = ReferenceOption.CASCADE)
     val payload: Column<MessagePayload> = json<MessagePayload>("payload", Json, serializer())
     var timestamp: Column<LocalDateTime> = datetime("timestamp")
     var senderId: Column<EntityID<Long>> = reference("user_id", UserTable)
