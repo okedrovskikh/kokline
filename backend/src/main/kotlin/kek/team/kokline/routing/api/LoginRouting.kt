@@ -12,6 +12,7 @@ import io.ktor.server.sessions.sessions
 import kek.team.kokline.models.UserCreateRequest
 import kek.team.kokline.security.sessions.authBasic
 import kek.team.kokline.security.sessions.authSession
+import kek.team.kokline.security.sessions.basicSession
 import kek.team.kokline.security.sessions.userSession
 import kek.team.kokline.service.user.UserService
 import kek.team.kokline.support.utils.authAndCallMethod
@@ -29,7 +30,9 @@ fun Route.authRouting() {
                 val user = service.getById(session.id)
                 call.respond(HttpStatusCode.Accepted, user)
             }
-            post("/logout") {
+        }
+        authenticate(basicSession) {
+            authAndCallMethod(::post, "/logout") {
                 call.sessions.clear(userSession)
                 call.respond(HttpStatusCode.OK)
             }
