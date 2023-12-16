@@ -11,6 +11,7 @@ class MessageMapper {
         id = entity.id.value,
         payload = entity.payload,
         chatId = entity.chat.id.value,
-        timestamp = entity.timestamp.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+        timestamp = entity.timestamp.truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+        userId = entity.sender.id.value
     )
 }

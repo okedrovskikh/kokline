@@ -16,12 +16,14 @@ object MessageTable : LongIdTable("message") {
     val chatId: Column<EntityID<Long>> = reference("chat_id", ChatTable)
     val payload: Column<MessagePayload> = json<MessagePayload>("payload", Json, serializer())
     var timestamp: Column<LocalDateTime> = datetime("timestamp")
+    var senderId: Column<EntityID<Long>> = reference("user_id", UserTable)
 }
 
 class MessageEntity(id: EntityID<Long>) : LongEntity(id) {
     var chat: ChatEntity by ChatEntity referencedOn MessageTable.chatId
     var payload: MessagePayload by MessageTable.payload
     var timestamp: LocalDateTime by MessageTable.timestamp
+    var sender: UserEntity by UserEntity referencedOn MessageTable.senderId
 
     companion object : LongEntityClass<MessageEntity>(MessageTable)
 }

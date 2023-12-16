@@ -5,6 +5,7 @@ import kek.team.kokline.models.MessagePayload
 import kek.team.kokline.persistence.entities.ChatEntity
 import kek.team.kokline.persistence.entities.MessageEntity
 import kek.team.kokline.persistence.entities.MessageTable
+import kek.team.kokline.persistence.entities.UserEntity
 import kek.team.kokline.support.utils.toSizedCollection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,13 +17,14 @@ import java.time.LocalDateTime
 
 class MessageRepository {
 
-    suspend fun create(payload: MessagePayload, chat: ChatEntity, timestamp: LocalDateTime): MessageEntity =
+    suspend fun create(payload: MessagePayload, chat: ChatEntity, timestamp: LocalDateTime, sender: UserEntity): MessageEntity =
         newOrSupportedTransaction {
             withContext(Dispatchers.IO) {
                 MessageEntity.new {
                     this.payload = payload
                     this.chat = chat
                     this.timestamp = timestamp
+                    this.sender = sender
                 }
             }
         }

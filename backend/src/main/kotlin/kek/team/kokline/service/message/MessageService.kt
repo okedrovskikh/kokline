@@ -9,6 +9,7 @@ import kek.team.kokline.models.PreferenceDescription
 import kek.team.kokline.models.WebSocketMessageCreateRequest
 import kek.team.kokline.persistence.repositories.ChatRepository
 import kek.team.kokline.persistence.repositories.MessageRepository
+import kek.team.kokline.persistence.repositories.UserRepository
 import kek.team.kokline.redis.events.Events
 import kek.team.kokline.redis.publisher.MessagePublisher
 import kek.team.kokline.security.actions.ActionPrefixes.MESSAGE
@@ -20,12 +21,14 @@ import java.time.LocalDateTime
 class MessageService(
     private val repository: MessageRepository,
     private val chatRepository: ChatRepository,
+    private val userRepository: UserRepository,
     private val mapper: MessageMapper,
     private val preferencesService: PreferencesService
 ) {
     suspend fun create(request: WebSocketMessageCreateRequest, chatId: Long, userId: Long): Message = dbQuery {
         val chat = chatRepository.findById(chatId) ?: throw NotFoundException("Not found chat by id: $chatId")
-        val message = repository.create(request.payload, chat, LocalDateTime.now())
+        val sender = userRepository.findById(userId) ?: throw NotFoundException("Not found user by id: $userId")
+        val message = repository.create(request.payload, chat, LocalDateTime.now(), sender)
         mapper.mapToModel(message).also {
             val preferences = listOf(
                 PreferenceDescription(MESSAGE_EDIT.actionName, listOf(userId), listOf(requireNotNull(it.id))),

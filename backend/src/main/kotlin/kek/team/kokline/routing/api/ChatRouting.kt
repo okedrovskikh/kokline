@@ -40,7 +40,7 @@ fun Route.chatRouting() {
                 val chat = service.getById(id)
                 call.respond(chat)
             }
-            authAndCallMethod(::get, "/") {
+            authAndCallMethod(::get, "") {
                 val id = authSession().id
                 val chats = userService.getChatsById(id)
                 call.respond(chats)
