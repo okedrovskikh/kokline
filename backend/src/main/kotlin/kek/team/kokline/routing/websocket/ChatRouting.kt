@@ -21,6 +21,7 @@ import kek.team.kokline.support.utils.authAndCallMethod
 import kek.team.kokline.support.utils.loggingCoroutineExceptionHandler
 import kek.team.kokline.support.utils.receiveDeserialized
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
@@ -75,6 +76,7 @@ fun Route.chatRouting() {
                             val ids = message.split(":")
 
                             if (chatId == ids.first().toLong()) {
+                                delay(100) // костыль чтоб не писать двуфазный коммит или сагу
                                 val message = messageService.getById(ids[1].toLong())
                                 sendSerialized(message)
                             }
