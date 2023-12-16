@@ -10,4 +10,4 @@ data class User(
 
 data class UserCreateRequest(val nickname: String, val credits: String, val name: String, val avatarUrl: String?)
 
-data class UserEditRequest(val nickname: String, val name: String, val avatarUrl: String?)
+data class UserEditRequest(val nickname: String?, val name: String?, val avatarUrl: String?)

@@ -1,15 +1,13 @@
 package kek.team.kokline.persistence.repositories
 
+import kek.team.kokline.factories.newOrSupportedTransaction
+import kek.team.kokline.models.User
 import kek.team.kokline.persistence.entities.UserEntity
 import kek.team.kokline.persistence.entities.UserTable
-import kek.team.kokline.factories.newOrSupportedTransaction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.or
-import org.jetbrains.exposed.sql.update
 
 class UserRepository {
 
@@ -50,19 +48,21 @@ class UserRepository {
         }
     }
 
-    suspend fun edit(id: Long, nickname: String, name: String, avatarUrl: String?): Boolean = newOrSupportedTransaction {
-        val changedRows = withContext(Dispatchers.IO) {
-            UserTable.update({ UserTable.id eq id }) {
-                it[UserTable.nickname] = nickname
-                it[UserTable.name] = name
-                it[UserTable.avatarUrl] = avatarUrl
+    suspend fun edit(id: Long, nickname: String?, name: String?, avatarUrl: String?): Boolean =
+        newOrSupportedTransaction {
+            val user: UserEntity = findById(id)!!
+            val changedRows = withContext(Dispatchers.IO) {
+                UserTable.update({ UserTable.id eq id }) {
+                    it[UserTable.nickname] = nickname?:user.nickname
+                    it[UserTable.name] = name?:user.name
+                    it[UserTable.avatarUrl] = avatarUrl?:user.avatarUrl
+                }
             }
+
+            if (changedRows > 1) error("Updated more than 1 row by id: $id")
+
+            changedRows > 0
         }
-
-        if (changedRows > 1) error("Updated more than 1 row by id: $id")
-
-        changedRows > 0
-    }
 
 
     suspend fun deleteById(id: Long): Boolean = newOrSupportedTransaction {
