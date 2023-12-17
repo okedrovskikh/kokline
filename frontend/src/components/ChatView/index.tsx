@@ -1,67 +1,24 @@
 import {
-    DotsVerticalIcon,
     MagnifyingGlassIcon,
     PaperPlaneIcon,
+    TrashIcon,
     ViewVerticalIcon,
 } from "@radix-ui/react-icons";
-import { useEffect, useState } from "react";
-import { getChat } from "../../api/chats";
+import { useState } from "react";
 import { Chat, Message, User } from "../../api/entities";
-import { getUser } from "../../api/users";
-import placeholder from "../../assets/placeholder.png";
+import { DirectMessages } from "../../api/websockets";
 import ChatMessage from "../ChatMessage";
 import "./style.scss";
 
-interface DirectMessages extends Chat {
-    username?: string;
-}
-
 const ChatView = ({
     user,
-    chatId,
+    chat,
     messages,
     users,
     sendMessage,
+    handleChatDelete,
 }: ChatViewProps) => {
     const [message, setMessage] = useState("");
-
-    const [chat, setChat] = useState<Chat | DirectMessages | null>();
-
-    useEffect(() => {
-        getChat(chatId).then((chat) => {
-            setChat(chat);
-
-            if (chat.users.length === 2) {
-                const otherUserId = chat.users.find(
-                    (userId) => user.id !== userId
-                );
-
-                if (!otherUserId) {
-                    return;
-                }
-
-                getUser(otherUserId).then((otherUser) => {
-                    if (!otherUser) {
-                        return;
-                    }
-
-                    setChat((chat) => {
-                        if (!chat) {
-                            return null;
-                        }
-
-                        return {
-                            ...chat,
-                            username: otherUser.nickname,
-                            avatarUrl: otherUser.avatarUrl ?? placeholder,
-                            name: otherUser.name,
-                            id: chat.id,
-                        };
-                    });
-                });
-            }
-        });
-    }, [chatId]);
 
     if (!chat) {
         return (
@@ -94,7 +51,12 @@ const ChatView = ({
                 <div className="chat-view__header__right">
                     <MagnifyingGlassIcon width={20} height={20} />
                     <ViewVerticalIcon width={20} height={20} />
-                    <DotsVerticalIcon width={20} height={20} />
+                    <TrashIcon
+                        width={24}
+                        height={24}
+                        className="trash-icon"
+                        onClick={handleChatDelete}
+                    />
                 </div>
             </div>
             <div className="chat-view__messages">
@@ -143,9 +105,10 @@ const ChatView = ({
 
 interface ChatViewProps {
     user: User;
-    chatId: number;
+    chat: Chat | DirectMessages | null;
     users: User[];
     messages: Message[];
+    handleChatDelete: () => void;
     setInfoVisible?: (visible: boolean) => void;
     sendMessage: (message: string) => void;
 }

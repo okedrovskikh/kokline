@@ -55,7 +55,9 @@ const Sidebar = ({
     };
 
     useEffect(() => {
-        fetchData();
+        fetchData().then((userChats) => {
+            setChats(userChats ?? []);
+        });
     }, [user]);
 
     useEffect(() => {

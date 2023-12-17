@@ -24,31 +24,33 @@ const Popup = ({
     }
 
     return (
-        <div
-            className={classNames(
-                "popup",
-                type,
-                opening ? "on-open" : "",
-                closing ? "on-close" : ""
-            )}
-            onAnimationEnd={(event) => {
-                if (event.animationName === "fade-in") {
-                    setOpening(false);
-                }
+        <div className="popup-wrapper">
+            <div
+                className={classNames(
+                    "popup",
+                    type,
+                    opening ? "on-open" : "",
+                    closing ? "popup-on-close" : ""
+                )}
+                onAnimationEnd={(event) => {
+                    if (event.animationName === "fade-in") {
+                        setOpening(false);
+                    }
 
-                if (event.animationName === "fade-out") {
-                    setIsOpen(false);
-                    setClosing(false);
-                }
-            }}
-        >
-            <span className="popup__text">{text}</span>
-            <Cross1Icon
-                className="popup__close"
-                width={16}
-                height={16}
-                onClick={() => setClosing(true)}
-            />
+                    if (event.animationName === "popup-fade-out") {
+                        setIsOpen(false);
+                        setClosing(false);
+                    }
+                }}
+            >
+                <span className="popup__text">{text}</span>
+                <Cross1Icon
+                    className="popup__close"
+                    width={16}
+                    height={16}
+                    onClick={() => setClosing(true)}
+                />
+            </div>
         </div>
     );
 };

@@ -76,7 +76,7 @@ export const findUsers = async (query: string): Promise<User[]> => {
     return response.json();
 };
 
-export const updateUser = async (body: BodyInit): Promise<User> => {
+export const updateUser = async (body: BodyInit): Promise<void> => {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
         method: "PUT",
         headers: {
@@ -92,7 +92,7 @@ export const updateUser = async (body: BodyInit): Promise<User> => {
         throw new UnauthorizedError(response.statusText);
     }
 
-    return response.json();
+    return;
 };
 
 export const logout = async (): Promise<void> => {

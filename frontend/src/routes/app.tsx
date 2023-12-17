@@ -1,10 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { createChat } from "../api/chats";
+import { createChat, deleteChat } from "../api/chats";
 import { User } from "../api/entities";
-import { getMe, getUser } from "../api/users";
+import { getMe, getUser, updateUser } from "../api/users";
 import { useChat } from "../api/websockets";
-import { ChatView, SettingsModal, Sidebar } from "../components";
+import { ChatView, Popup, SettingsModal, Sidebar } from "../components";
 
 const App = () => {
     const navigate = useNavigate({ from: "/" });
@@ -15,7 +15,16 @@ const App = () => {
     const [settingsVisible, setSettingsVisible] = useState(false);
     const [settingsOpening, setSettingsOpening] = useState(false);
 
-    const createUserChat = async (userId: number) => {
+    const [popupText, setPopupText] = useState("");
+    const [popupType, setPopupType] = useState<"success" | "info" | "error">(
+        "info"
+    );
+    const [popupOpen, setPopupOpen] = useState(false);
+    const [popupOpening, setPopupOpening] = useState(false);
+
+    const { chat, users, messages, sendMessage } = useChat(user, currentChat);
+
+    const handleChatCreate = async (userId: number) => {
         const user = await getUser(Math.abs(userId));
 
         if (!user) {
@@ -36,6 +45,43 @@ const App = () => {
         setCurrentChat(chat.id);
     };
 
+    const handleChatDelete = async () => {
+        if (!chat) {
+            return;
+        }
+
+        try {
+            await deleteChat(chat.id);
+            setPopupText("Chat deleted successfully");
+            setPopupType("success");
+        } catch (error) {
+            setPopupText("An error occurred while deleting the chat");
+            setPopupType("error");
+            return;
+        }
+        if (!popupOpen) {
+            setPopupOpen(true);
+            setPopupOpening(true);
+        }
+        setCurrentChat(null);
+    };
+
+    const handleUserUpdate = async (body: BodyInit) => {
+        await updateUser(body);
+        const newUser = await getMe();
+
+        setUser({ ...newUser });
+        sessionStorage.setItem("user", JSON.stringify(newUser));
+
+        setPopupText("User updated successfully");
+        setPopupType("success");
+
+        if (!popupOpen) {
+            setPopupOpen(true);
+            setPopupOpening(true);
+        }
+    };
+
     useEffect(() => {
         getMe()
             .then((user) => {
@@ -50,20 +96,21 @@ const App = () => {
     }, []);
 
     useEffect(() => {
-        if (currentChat) {
-            getMe().then((user) => {
+        getMe().then((user) => {
+            setUser({ ...user });
+            sessionStorage.setItem("user", JSON.stringify(user));
+
+            if (currentChat) {
                 if (!user.chats) {
                     setCurrentChat(null);
                 }
 
                 if (!user.chats?.includes(currentChat)) {
-                    createUserChat(currentChat);
+                    handleChatCreate(currentChat);
                 }
-            });
-        }
+            }
+        });
     }, [currentChat]);
-
-    const { users, messages, sendMessage } = useChat(currentChat);
 
     const chatSelectionText = () => {
         return (
@@ -94,10 +141,11 @@ const App = () => {
             {currentChat && users.length > 0 ? (
                 <ChatView
                     user={user!}
-                    chatId={currentChat}
+                    chat={chat}
                     users={users}
                     messages={messages}
                     sendMessage={sendMessage}
+                    handleChatDelete={handleChatDelete}
                 />
             ) : (
                 chatSelectionText()
@@ -108,6 +156,15 @@ const App = () => {
                 setIsOpen={setSettingsVisible}
                 opening={settingsOpening}
                 setOpening={setSettingsOpening}
+                handleUserUpdate={handleUserUpdate}
+            />
+            <Popup
+                text={popupText}
+                type={popupType}
+                isOpen={popupOpen}
+                setIsOpen={setPopupOpen}
+                opening={popupOpening}
+                setOpening={setPopupOpening}
             />
         </>
     );

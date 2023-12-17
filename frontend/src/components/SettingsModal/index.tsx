@@ -1,8 +1,9 @@
 import { Cross1Icon, ExitIcon } from "@radix-ui/react-icons";
 import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { handleUpload } from "../../api/cloudinary";
 import { User } from "../../api/entities";
-import { logout, updateUser } from "../../api/users";
+import { logout } from "../../api/users";
 import AvatarUpload from "../AvatarUpload";
 import "./style.scss";
 
@@ -12,6 +13,7 @@ const SettingsModal = ({
     setIsOpen,
     opening,
     setOpening,
+    handleUserUpdate,
 }: SettingsModalProps) => {
     const navigate = useNavigate({ from: "/" });
 
@@ -20,6 +22,14 @@ const SettingsModal = ({
     const [password, setPassword] = useState<string>("");
 
     const [closing, setClosing] = useState(false);
+
+    useEffect(() => {
+        if (avatar === user.avatarUrl || avatar == "") return;
+
+        handleUpload(avatar).then((url) => {
+            handleUserUpdate(JSON.stringify({ avatarUrl: url }));
+        });
+    }, [avatar]);
 
     if (!isOpen) return null;
 
@@ -74,16 +84,25 @@ const SettingsModal = ({
                                 onChange={(event) =>
                                     setName(event.target.value)
                                 }
+                                onKeyDown={(e) => {
+                                    if (name.length < 1) return;
+                                    if (e.key === "Enter") {
+                                        handleUserUpdate(
+                                            JSON.stringify({ name })
+                                        );
+                                    }
+                                }}
                                 value={name}
                                 autoComplete="off"
                             />
                             <button
                                 type="button"
                                 className="settings__form__button"
-                                onClick={() => {
+                                onClick={async () => {
                                     if (name.length < 1) return;
-                                    updateUser(JSON.stringify({ name }));
-                                    navigate({ to: "/", replace: true });
+                                    await handleUserUpdate(
+                                        JSON.stringify({ name })
+                                    );
                                 }}
                             >
                                 Change
@@ -102,18 +121,27 @@ const SettingsModal = ({
                                 onChange={(event) =>
                                     setPassword(event.target.value)
                                 }
+                                onKeyDown={(e) => {
+                                    if (password.length < 1) return;
+                                    if (e.key === "Enter") {
+                                        handleUserUpdate(
+                                            JSON.stringify({
+                                                credits: password,
+                                            })
+                                        );
+                                    }
+                                }}
                                 value={password}
                                 autoComplete="off"
                             />
                             <button
                                 type="button"
                                 className="settings__form__button"
-                                onClick={() => {
+                                onClick={async () => {
                                     if (password.length < 1) return;
-                                    updateUser(
+                                    await handleUserUpdate(
                                         JSON.stringify({ credits: password })
                                     );
-                                    navigate({ to: "/", replace: true });
                                 }}
                             >
                                 Change
@@ -144,6 +172,7 @@ interface SettingsModalProps {
     setIsOpen: (isOpen: boolean) => void;
     opening: boolean;
     setOpening: (opening: boolean) => void;
+    handleUserUpdate: (body: BodyInit) => void;
 }
 
 export default SettingsModal;
