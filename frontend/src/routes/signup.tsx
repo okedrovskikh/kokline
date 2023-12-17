@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { handleUpload } from "../api/cloudinary";
-import { AvatarUpload } from "../components";
+import { AvatarUpload, Popup } from "../components";
 
 const Signup = () => {
     const navigate = useNavigate({ from: "/signup" });
@@ -9,8 +9,14 @@ const Signup = () => {
     const [name, setName] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-
     const [avatar, setAvatar] = useState<string>("");
+
+    const [popupText, setPopupText] = useState("");
+    const [popupType, setPopupType] = useState<"success" | "info" | "error">(
+        "info"
+    );
+    const [popupOpen, setPopupOpen] = useState(false);
+    const [popupOpening, setPopupOpening] = useState(false);
 
     const handleSignup = async () => {
         const response = await fetch(
@@ -34,6 +40,13 @@ const Signup = () => {
 
         if (response.ok) {
             navigate({ to: "/login", replace: true });
+        } else {
+            if (!popupOpen) {
+                setPopupText("Invalid credentials");
+                setPopupType("error");
+                setPopupOpen(true);
+                setPopupOpening(true);
+            }
         }
     };
 
@@ -103,6 +116,14 @@ const Signup = () => {
                     </Link>
                 </div>
             </div>
+            <Popup
+                text={popupText}
+                type={popupType}
+                isOpen={popupOpen}
+                setIsOpen={setPopupOpen}
+                opening={popupOpening}
+                setOpening={setPopupOpening}
+            />
         </div>
     );
 };

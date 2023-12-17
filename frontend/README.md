@@ -77,7 +77,7 @@ This will create a production build in the `dist` folder.
     -   [ ] Chat info
     -   [ ] Chat actions
     -   [ ] Chat members
--   [ ] Default avatar
+-   [x] Default avatar
 
 ### Planned features
 

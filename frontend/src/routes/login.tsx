@@ -1,11 +1,19 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { Popup } from "../components";
 
 const Login = () => {
     const navigate = useNavigate({ from: "/login" });
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+
+    const [popupText, setPopupText] = useState("");
+    const [popupType, setPopupType] = useState<"success" | "info" | "error">(
+        "info"
+    );
+    const [popupOpen, setPopupOpen] = useState(false);
+    const [popupOpening, setPopupOpening] = useState(false);
 
     const handleLogin = async () => {
         const response = await fetch(
@@ -27,6 +35,13 @@ const Login = () => {
 
             sessionStorage.setItem("user", JSON.stringify(data));
             navigate({ to: "/", replace: true });
+        } else {
+            if (!popupOpen) {
+                setPopupText("Wrong username or password");
+                setPopupType("error");
+                setPopupOpen(true);
+                setPopupOpening(true);
+            }
         }
     };
 
@@ -76,6 +91,14 @@ const Login = () => {
                     </Link>
                 </div>
             </div>
+            <Popup
+                text={popupText}
+                type={popupType}
+                isOpen={popupOpen}
+                setIsOpen={setPopupOpen}
+                opening={popupOpening}
+                setOpening={setPopupOpening}
+            />
         </div>
     );
 };
