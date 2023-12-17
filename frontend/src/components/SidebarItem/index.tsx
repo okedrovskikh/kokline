@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import { Message } from "../../api/entities";
+import placeholder from "../../assets/placeholder.png";
 import "./style.scss";
 
 const SidebarItem = ({
@@ -19,7 +20,11 @@ const SidebarItem = ({
             className={classNames("sidebar-item", { selected: selected })}
             onClick={onClick}
         >
-            <img src={avatarUrl} alt={username} className="sidebar-item__img" />
+            <img
+                src={avatarUrl ?? placeholder}
+                alt={username}
+                className="sidebar-item__img"
+            />
             <div className="sidebar-item__content">
                 <div className="sidebar-item__content__header">
                     <span className="sidebar-item__content__name">{name}</span>

@@ -9,7 +9,7 @@ const ChatMessage = ({ user, message, isMe }: ChatMessageProps) => {
         <div className={`chat-message${isMe ? " me" : ""}`}>
             {!isMe && (
                 <img
-                    src={user.avatarUrl}
+                    src={user.avatarUrl ?? ""}
                     alt="avatar"
                     className="chat-message__avatar"
                 />
@@ -36,7 +36,9 @@ const ChatMessage = ({ user, message, isMe }: ChatMessageProps) => {
                     </div>
                 )}
                 <div className="chat-message__bubble__content">
-                    {message.payload}
+                    <span className="chat-message__bubble__payload">
+                        {message.payload}
+                    </span>
                     <span className="chat-message__bubble__timestamp">
                         {message.timestamp.toLocaleTimeString("en-US", {
                             hour: "numeric",

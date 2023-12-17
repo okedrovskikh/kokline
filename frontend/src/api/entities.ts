@@ -5,7 +5,7 @@ export interface User {
     id: number;
     name: string;
     nickname: string;
-    avatarUrl: string;
+    avatarUrl?: string;
     chats?: number[];
 }
 
@@ -20,6 +20,6 @@ export interface Message {
 export interface Chat {
     id: number;
     name: string;
-    avatarUrl: string;
+    avatarUrl?: string;
     users: number[];
 }

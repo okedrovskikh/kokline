@@ -4,6 +4,7 @@ import { getChats } from "../../api/chats";
 import { Chat, Message, User } from "../../api/entities";
 import { getLastMessageFromChat } from "../../api/messages";
 import { findUsers, getUser } from "../../api/users";
+import placeholder from "../../assets/placeholder.png";
 import SidebarItem from "../SidebarItem";
 import "./style.scss";
 
@@ -41,7 +42,7 @@ const Sidebar = ({
                 const otherUser = await getUser(otherUserId);
 
                 chats[i].username = otherUser?.nickname;
-                chats[i].avatarUrl = otherUser?.avatarUrl;
+                chats[i].avatarUrl = otherUser?.avatarUrl ?? placeholder;
                 chats[i].name = otherUser?.name;
             }
 
@@ -145,11 +146,13 @@ const Sidebar = ({
                     {chats
                         .filter(
                             (chat) =>
-                                chat.name.toLowerCase().includes(search) ||
+                                chat.name
+                                    .toLowerCase()
+                                    .includes(search.toLowerCase()) ||
                                 (chat.username &&
                                     (
                                         "@" + chat.username.toLowerCase()
-                                    ).includes(search))
+                                    ).includes(search.toLowerCase()))
                         )
                         .map((chat) => (
                             <SidebarItem
@@ -166,7 +169,7 @@ const Sidebar = ({
                 <div className="sidebar__profile">
                     <img
                         className="sidebar__profile__avatar"
-                        src={user.avatarUrl}
+                        src={user.avatarUrl ?? placeholder}
                         alt="avatar"
                     />
                     <div className="sidebar__profile__info">

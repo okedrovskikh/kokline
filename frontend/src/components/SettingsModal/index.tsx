@@ -1,4 +1,5 @@
 import { Cross1Icon, ExitIcon } from "@radix-ui/react-icons";
+import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { User } from "../../api/entities";
 import { logout, updateUser } from "../../api/users";
@@ -12,7 +13,9 @@ const SettingsModal = ({
     opening,
     setOpening,
 }: SettingsModalProps) => {
-    const [avatar, setAvatar] = useState<string>(user.avatarUrl);
+    const navigate = useNavigate({ from: "/" });
+
+    const [avatar, setAvatar] = useState<string>(user.avatarUrl ?? "");
     const [name, setName] = useState<string>("");
     const [password, setPassword] = useState<string>("");
 
@@ -80,7 +83,7 @@ const SettingsModal = ({
                                 onClick={() => {
                                     if (name.length < 1) return;
                                     updateUser(JSON.stringify({ name }));
-                                    window.location.reload();
+                                    navigate({ to: "/", replace: true });
                                 }}
                             >
                                 Change
@@ -110,7 +113,7 @@ const SettingsModal = ({
                                     updateUser(
                                         JSON.stringify({ credits: password })
                                     );
-                                    window.location.reload();
+                                    navigate({ to: "/", replace: true });
                                 }}
                             >
                                 Change
@@ -119,7 +122,13 @@ const SettingsModal = ({
                     </div>
                 </div>
                 <div className="settings__footer">
-                    <div className="settings__footer__item" onClick={logout}>
+                    <div
+                        className="settings__footer__item"
+                        onClick={() => {
+                            logout();
+                            navigate({ to: "/login", replace: true });
+                        }}
+                    >
                         <ExitIcon width={16} height={16} />
                         <span>Logout</span>
                     </div>

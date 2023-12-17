@@ -36,13 +36,14 @@
     }
 
     &__bubble {
+        overflow: hidden;
         display: flex;
         flex-direction: column;
         gap: 0;
         align-items: flex-start;
         justify-content: flex-end;
 
-        max-width: 40%;
+        max-width: 60%;
         padding: 4px 8px 5px;
 
         background: #1A191E;
@@ -59,11 +60,19 @@
             display: flex;
             gap: 8px;
             align-items: flex-end;
+            justify-content: flex-end;
 
+            width: 100%;
             padding: 0 2px;
+        }
+
+        &__payload {
+            max-width: 600px;
 
             font-size: 16px;
             font-weight: 400;
+            text-wrap: balance;
+            line-break: anywhere;
         }
 
         &__timestamp {

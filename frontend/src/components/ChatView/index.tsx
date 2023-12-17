@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { getChat } from "../../api/chats";
 import { Chat, Message, User } from "../../api/entities";
 import { getUser } from "../../api/users";
+import placeholder from "../../assets/placeholder.png";
 import ChatMessage from "../ChatMessage";
 import "./style.scss";
 
@@ -52,7 +53,7 @@ const ChatView = ({
                         return {
                             ...chat,
                             username: otherUser.nickname,
-                            avatarUrl: otherUser.avatarUrl,
+                            avatarUrl: otherUser.avatarUrl ?? placeholder,
                             name: otherUser.name,
                             id: chat.id,
                         };
