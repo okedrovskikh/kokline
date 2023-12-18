@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { createChat, deleteChat } from "../api/chats";
 import { User } from "../api/entities";
 import { getMe, getUser, updateUser } from "../api/users";
-import { useChat } from "../api/websockets";
+import { useChat, useNotifier } from "../api/websockets";
 import { ChatView, Popup, SettingsModal, Sidebar } from "../components";
 
 const App = () => {
@@ -23,6 +23,7 @@ const App = () => {
     const [popupOpening, setPopupOpening] = useState(false);
 
     const { chat, users, messages, sendMessage } = useChat(user, currentChat);
+    const { lastMessage } = useNotifier();
 
     const handleChatCreate = async (userId: number) => {
         const user = await getUser(Math.abs(userId));
@@ -137,6 +138,7 @@ const App = () => {
                     setSettingsVisible(true);
                     setSettingsOpening(true);
                 }}
+                lastMessage={lastMessage ?? undefined}
             />
             {currentChat && users.length > 0 ? (
                 <ChatView

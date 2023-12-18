@@ -19,6 +19,7 @@ const Sidebar = ({
     setCurrentChat,
     settingsVisible,
     setSettingsVisible,
+    lastMessage,
 }: SidebarProps) => {
     const [search, setSearch] = useState<string>("");
     const [width, setWidth] = useState(320);
@@ -65,6 +66,26 @@ const Sidebar = ({
             setChats(userChats ?? []);
         });
     }, []);
+
+    useEffect(() => {
+        if (!lastMessage) {
+            return;
+        }
+
+        const newChats = [...chats];
+
+        const chatIndex = newChats.findIndex(
+            (chat) => chat.id === lastMessage.chatId
+        );
+
+        if (chatIndex === -1) {
+            return;
+        }
+
+        newChats[chatIndex].lastMessage = lastMessage;
+
+        setChats(newChats);
+    }, [lastMessage]);
 
     useEffect(() => {
         const query = search.replace("@", "").toLowerCase();
@@ -207,6 +228,7 @@ interface SidebarProps {
     setCurrentChat: (username: number) => void;
     settingsVisible: boolean;
     setSettingsVisible: () => void;
+    lastMessage?: Message;
 }
 
 export default Sidebar;

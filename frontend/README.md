@@ -66,7 +66,7 @@ This will create a production build in the `dist` folder.
     -   [x] All chats
     -   [x] User info
     -   [ ] Chat creation
-    -   [ ] Websocket integration
+    -   [x] Websocket integration
 -   [x] Cloudinary integration
 -   [x] Chat page
     -   [x] Chat header

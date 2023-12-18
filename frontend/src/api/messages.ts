@@ -71,3 +71,23 @@ export const getMessagesFromChat = async (
 
     return response.json();
 };
+
+export const getMessage = async (messageId: number): Promise<Message> => {
+    const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/messages/${messageId}`,
+        {
+            method: "GET",
+            headers: {
+                Accept: "application/json",
+            },
+            credentials: "include",
+            mode: "cors",
+        }
+    );
+
+    if (!response.ok) {
+        throw new UnauthorizedError(response.statusText);
+    }
+
+    return response.json();
+};

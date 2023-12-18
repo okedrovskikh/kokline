@@ -3,15 +3,55 @@ import { Websocket, WebsocketBuilder, WebsocketEvent } from "websocket-ts";
 import placeholder from "../assets/placeholder.png";
 import { getChat } from "./chats";
 import { Chat, Message, User } from "./entities";
-import { getMessagesFromChat } from "./messages";
+import { getMessage, getMessagesFromChat } from "./messages";
 import { getUser } from "./users";
+
+interface NotifierMessage {
+    entity: string;
+    operation: string;
+    resourceId: number;
+}
 
 export interface DirectMessages extends Chat {
     username?: string;
 }
 
-export const useNotifier = (userId: number | null) => {
-    throw new Error("Not implemented");
+export const useNotifier = () => {
+    const [lastMessage, setLastMessage] = useState<Message | null>(null);
+
+    const socketRef = useRef<Websocket | null>(null);
+
+    useEffect(() => {
+        if (!socketRef.current) {
+            socketRef.current = new WebsocketBuilder(
+                `${import.meta.env.VITE_WS_URL}/notifier/listen`
+            ).build() as Websocket;
+
+            socketRef.current.addEventListener(
+                WebsocketEvent.message,
+                (_ws, event) => {
+                    const eventMessage: NotifierMessage = JSON.parse(
+                        event.data
+                    );
+                    if (eventMessage.entity !== "MESSAGE") return;
+                    // TODO: add other operations support
+                    if (eventMessage.operation !== "CREATE") return;
+
+                    getMessage(eventMessage.resourceId).then((message) => {
+                        setLastMessage({ ...message });
+                    });
+                }
+            );
+        }
+
+        return () => {
+            if (socketRef.current?.readyState !== 1) return;
+            socketRef.current?.close();
+            socketRef.current = null;
+        };
+    }, []);
+
+    return { lastMessage };
 };
 
 export const useChat = (user: User | null, chatId: number | null) => {
@@ -76,22 +116,26 @@ export const useChat = (user: User | null, chatId: number | null) => {
             setMessages(messages);
         });
 
-        socketRef.current = new WebsocketBuilder(
-            `${import.meta.env.VITE_WS_URL}/chat/joinChat?id=${chatId}`
-        ).build() as Websocket;
+        if (!socketRef.current) {
+            socketRef.current = new WebsocketBuilder(
+                `${import.meta.env.VITE_WS_URL}/chat/joinChat?id=${chatId}`
+            ).build() as Websocket;
 
-        socketRef.current.addEventListener(
-            WebsocketEvent.message,
-            (_ws, event) => {
-                setMessages((messages) => [
-                    JSON.parse(event.data),
-                    ...messages,
-                ]);
-            }
-        );
+            socketRef.current.addEventListener(
+                WebsocketEvent.message,
+                (_ws, event) => {
+                    setMessages((messages) => [
+                        JSON.parse(event.data),
+                        ...messages,
+                    ]);
+                }
+            );
+        }
 
         return () => {
+            if (socketRef.current?.readyState !== 1) return;
             socketRef.current?.close();
+            socketRef.current = null;
         };
     }, [chatId]);
 
