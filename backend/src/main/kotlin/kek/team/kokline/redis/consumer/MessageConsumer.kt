@@ -5,7 +5,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 
 interface MessageConsumer<T> {
-    val channel: String
+    val channel: Array<out String>
 
     suspend fun isActive(): Boolean
 
@@ -14,7 +14,10 @@ interface MessageConsumer<T> {
     suspend fun sendMessage(message: T)
 }
 
-class ChannelMessageConsumer<T>(override val channel: String, private val listenChannel: Channel<T>) : MessageConsumer<T>, AutoCloseable {
+class ChannelMessageConsumer<T>(
+    override val channel: Array<out String>,
+    private val listenChannel: Channel<T>,
+) : MessageConsumer<T>, AutoCloseable {
     private val typeRef = object : TypeToken<T>() {}.type
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -34,7 +37,7 @@ class ChannelMessageConsumer<T>(override val channel: String, private val listen
         if (this === other) return true
         if (other !is ChannelMessageConsumer<*>) return false
 
-        return channel == other.channel && typeRef == other.typeRef
+        return channel.contentEquals(other.channel) && typeRef == other.typeRef
     }
 
 }
