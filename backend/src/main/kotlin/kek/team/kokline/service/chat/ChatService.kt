@@ -11,8 +11,10 @@ import kek.team.kokline.persistence.entities.UserEntity
 import kek.team.kokline.persistence.repositories.ChatRepository
 import kek.team.kokline.redis.events.Events
 import kek.team.kokline.redis.publisher.MessagePublisher
+import kek.team.kokline.security.actions.ActionPrefixes
 import kek.team.kokline.security.actions.ActionPrefixes.CHAT
 import kek.team.kokline.security.actions.Actions.*
+import kek.team.kokline.security.sessions.authSession
 import kek.team.kokline.service.security.PreferencesService
 import kek.team.kokline.support.utils.toSizedCollection
 
@@ -25,22 +27,25 @@ class ChatService(
     suspend fun create(userId: Long, request: ChatCreateRequest): Chat = dbQuery {
         val participants = (request.users + userId).toSet()
         val chat = chatRepository.create(request.name, participants, request.avatarUrl)
-        mapper.mapToModel(chat).also {
-            val preferences = listOf(
-                PreferenceDescription(CHAT_READ.actionName, participants, listOf(requireNotNull(it.id))),
-                PreferenceDescription(CHAT_EDIT.actionName, listOf(userId), listOf(requireNotNull(it.id))),
-                PreferenceDescription(CHAT_DELETE.actionName, listOf(userId), listOf(requireNotNull(it.id)))
-            )
-            preferencesService.createAll(preferences)
-            MessagePublisher.publish(requireNotNull(chat.id).toString(), Events.CHAT_CREATE.eventName)
+        val preferences = listOf(
+            PreferenceDescription(CHAT_READ.actionName, participants, listOf(requireNotNull(chat.id.value))),
+            PreferenceDescription(CHAT_EDIT.actionName, listOf(userId), listOf(requireNotNull(chat.id.value))),
+            PreferenceDescription(CHAT_DELETE.actionName, listOf(userId), listOf(requireNotNull(chat.id.value)))
+        )
+        preferencesService.createAll(preferences)
+        val userChatPreferences = preferencesService.findAllUserPreferenceByResource(userId, chat.id.value, CHAT.actionPrefix)
+        mapper.mapToModel(chat, userChatPreferences).also {
+            MessagePublisher.publish(requireNotNull(it.id).toString(), Events.CHAT_CREATE.eventName)
         }
     }
 
-    suspend fun getById(id: Long): Chat = dbQuery { chatRepository.findById(id)?.let(mapper::mapToModel) }
-        ?: throw NotFoundException("Not found chat by id: $id")
+    suspend fun getById(id: Long): Chat = dbQuery {
+        val userChatPreferences = preferencesService.findAllUserPreferenceByResource(authSession().id, id, CHAT.actionPrefix)
+        chatRepository.findById(id)?.let { mapper.mapToModel(it, userChatPreferences) }
+    } ?: throw NotFoundException("Not found chat by id: $id")
 
     suspend fun edit(ownerId: Long, chatId: Long, request: ChatEditRequest): Unit = dbQuery {
-        val chat = chatRepository.findById(chatId) ?: throw NotFoundException("Not found chat by id: ${chatId}")
+        val chat = chatRepository.findById(chatId) ?: throw NotFoundException("Not found chat by id: $chatId")
 
         val chatUsersSet = chat.users.map { it.id.value }.toSet()
         val requestUsersSet = (request.users + ownerId).toSet()

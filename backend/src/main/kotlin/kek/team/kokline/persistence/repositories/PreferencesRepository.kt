@@ -10,6 +10,7 @@ import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.selectAll
@@ -42,7 +43,7 @@ class PreferencesRepository {
     suspend fun findAllWithResourceByOwner(id: Long, actionPrefix: String): List<PreferenceEntity> = newOrSupportedTransaction {
         val rows = withContext(Dispatchers.IO) {
             PreferencesTable.selectAll()
-                .adjustWhere { (PreferencesTable.ownerId eq id) and (PreferencesTable.action like actionPrefix) }
+                .andWhere { (PreferencesTable.ownerId eq id) and (PreferencesTable.action like "$actionPrefix%") }
                 .toList()
         }
         rows.map(::wrapRow)
@@ -55,8 +56,8 @@ class PreferencesRepository {
     ): List<PreferenceEntity> = newOrSupportedTransaction {
         val rows = withContext(Dispatchers.IO) {
             PreferencesTable.selectAll()
-                .adjustWhere { (PreferencesTable.ownerId eq ownerId) and (PreferencesTable.resourceId eq resourceId) }
-                .adjustWhere { PreferencesTable.action like actionPrefix }
+                .andWhere { (PreferencesTable.ownerId eq ownerId) and (PreferencesTable.resourceId eq resourceId) }
+                .andWhere { PreferencesTable.action like "$actionPrefix%" }
                 .toList()
         }
         rows.map(::wrapRow)
@@ -65,7 +66,7 @@ class PreferencesRepository {
     suspend fun findAllWithResourceByOwnerAndAction(ownerId: Long, action: String): List<PreferenceEntity> = newOrSupportedTransaction {
         val rows = withContext(Dispatchers.IO) {
             PreferencesTable.selectAll()
-                .adjustWhere { (PreferencesTable.ownerId eq ownerId) and (PreferencesTable.action eq action) }
+                .andWhere { (PreferencesTable.ownerId eq ownerId) and (PreferencesTable.action eq action) }
                 .toList()
         }
         rows.map(::wrapRow)
@@ -74,7 +75,7 @@ class PreferencesRepository {
     suspend fun findAllByOwner(id: Long): List<PreferenceEntity> = newOrSupportedTransaction {
         withContext(Dispatchers.IO) {
             PreferencesTable.selectAll()
-                .adjustWhere { PreferencesTable.ownerId eq id }
+                .andWhere { PreferencesTable.ownerId eq id }
                 .map { PreferenceEntity.wrapRow(it) }
         }
     }
@@ -99,7 +100,7 @@ class PreferencesRepository {
 
     suspend fun deleteAllByResource(resourceId: Long, actionPrefix: String): Int = newOrSupportedTransaction {
         withContext(Dispatchers.IO) {
-            PreferencesTable.deleteWhere { (PreferencesTable.resourceId eq resourceId) and (PreferencesTable.action like actionPrefix) }
+            PreferencesTable.deleteWhere { (PreferencesTable.resourceId eq resourceId) and (action like "$actionPrefix%") }
         }
     }
 }

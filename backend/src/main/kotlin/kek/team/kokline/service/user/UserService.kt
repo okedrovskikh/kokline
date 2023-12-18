@@ -9,6 +9,7 @@ import kek.team.kokline.persistence.repositories.ChatRepository
 import kek.team.kokline.persistence.repositories.UserRepository
 import kek.team.kokline.redis.events.Events
 import kek.team.kokline.redis.publisher.MessagePublisher
+import kek.team.kokline.security.actions.ActionPrefixes
 import kek.team.kokline.security.actions.Actions.USER_DELETE
 import kek.team.kokline.security.actions.Actions.USER_EDIT
 import kek.team.kokline.service.security.PreferencesService
@@ -43,13 +44,11 @@ class UserService(
     suspend fun getChatsById(id: Long): List<Chat?> = dbQuery {
         repository.findById(id)?.let { user ->
             mapper.mapToUserWithChats(user).chats?.map { chatId ->
-                chatRepository.findById(chatId)?.let { chatMapper.mapToModel(it) }
-            }
-                ?: throw NotFoundException("Not found chats for user with id: $id")
+                val userChatPreferences = preferencesService.findAllUserPreferenceByResource(id, chatId, ActionPrefixes.CHAT.actionPrefix)
+                chatRepository.findById(chatId)?.let { chatMapper.mapToModel(it, userChatPreferences) }
+            } ?: throw NotFoundException("Not found chats for user with id: $id")
         }
-
-    }
-        ?: throw NotFoundException("Not found user with id: $id")
+    } ?: throw NotFoundException("Not found user with id: $id")
 
     suspend fun edit(id: Long, request: UserEditRequest): Unit = dbQuery {
         repository.edit(id, request.nickname, request.name, request.avatarUrl).also {
