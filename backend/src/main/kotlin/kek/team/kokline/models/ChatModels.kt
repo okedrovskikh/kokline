@@ -12,4 +12,4 @@ data class Chat(
 
 data class ChatCreateRequest(val name: String, val users: List<Long>, val avatarUrl: String?)
 
-data class ChatEditRequest(val name: String, val users: List<Long>, val avatarUrl: String)
+data class ChatEditRequest(val name: String, val users: List<Long>, val avatarUrl: String?)
