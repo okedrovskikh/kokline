@@ -1,5 +1,6 @@
 package kek.team.kokline.service.chat
 
+import kek.team.kokline.exceptions.BadRequestException
 import kek.team.kokline.exceptions.NotFoundException
 import kek.team.kokline.factories.dbQuery
 import kek.team.kokline.mappers.ChatMapper
@@ -65,6 +66,17 @@ class ChatService(
             )
         )
         MessagePublisher.publish(chat.id.value.toString(), Events.CHAT_EDIT.eventName)
+    }
+
+    suspend fun leaveChat(userId: Long, chatId: Long): Unit = dbQuery {
+        val chat = chatRepository.findById(chatId) ?: throw NotFoundException("Not found chat by id: $chatId")
+        val newUsers = chat.users.toMutableList().apply { this.removeIf { it.id.value == userId } }.toSizedCollection()
+
+        if (newUsers == chat.users) {
+            throw BadRequestException("Not member of chat")
+        } else {
+            chat.users = newUsers
+        }
     }
 
     suspend fun deleteById(id: Long): Unit = dbQuery {

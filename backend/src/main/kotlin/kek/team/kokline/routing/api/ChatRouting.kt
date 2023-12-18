@@ -45,6 +45,12 @@ fun Route.chatRouting() {
                 val chats = userService.getChatsById(id)
                 call.respond(chats)
             }
+            authAndCallMethod(::post, "/leave/{id?}") {
+                val userId = authSession().id
+                val id = call.getId()
+                service.leaveChat(userId, id)
+                call.respond(HttpStatusCode.OK)
+            }
         }
         authenticate(chatEditSession) {
             authAndCallMethod(::put, "/{id?}") {
