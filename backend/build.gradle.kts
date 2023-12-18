@@ -11,18 +11,23 @@ val jedisVersion: String by project
 val kloggingVersion: String by project
 
 plugins {
-    kotlin("jvm")
+    kotlin("jvm") version "1.9.10"
     id("io.ktor.plugin") version "2.3.4"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
 }
+
+group = "kek.team"
+version = "1.0.0-SNAPSHOT"
 
 application {
     mainClass = "kek.team.kokline.ApplicationMainKt"
 }
 
-dependencies {
-    implementation(project(":library"))
+repositories {
+    mavenCentral()
+}
 
+dependencies {
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-sessions-jvm")

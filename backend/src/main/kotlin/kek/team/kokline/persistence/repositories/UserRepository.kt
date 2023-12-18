@@ -1,7 +1,6 @@
 package kek.team.kokline.persistence.repositories
 
 import kek.team.kokline.factories.newOrSupportedTransaction
-import kek.team.kokline.models.User
 import kek.team.kokline.persistence.entities.UserEntity
 import kek.team.kokline.persistence.entities.UserTable
 import kotlinx.coroutines.Dispatchers

@@ -9,7 +9,7 @@ networks:
 services:
   backend:
     build:
-      context: ./
+      context: ./backend
       dockerfile: ./backend/Dockerfile
     container_name: backend
     restart: on-failure
