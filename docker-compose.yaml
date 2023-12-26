@@ -14,6 +14,8 @@ services:
     environment:
       POSTGRES_URL: jdbc:postgresql://postgres:5432/kokline
       REDIS_DNS_NAME: redis
+      ALLOWED_HOSTS.0: host.docker.internal:5173
+      ALLOWED_HOSTS.1: host.docker.internal:4173
     ports:
       - 8080:8080
     networks:
