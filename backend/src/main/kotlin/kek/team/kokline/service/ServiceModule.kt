@@ -1,7 +1,10 @@
 package kek.team.kokline.service
 
 import kek.team.kokline.service.chat.ChatService
-import kek.team.kokline.service.events.EventsService
+import kek.team.kokline.service.events.ChatEventService
+import kek.team.kokline.service.events.EventsServiceFacade
+import kek.team.kokline.service.events.MessageEventService
+import kek.team.kokline.service.events.UserEventService
 import kek.team.kokline.service.login.LoginService
 import kek.team.kokline.service.message.MessageService
 import kek.team.kokline.service.security.PreferencesService
@@ -16,8 +19,11 @@ val serviceModule = module {
     singleOf(::ChatService)
     singleOf(::LoginService)
     singleOf(::UserService)
-    singleOf(::EventsService)
+    singleOf(::EventsServiceFacade)
     singleOf(::PreferencesService)
     singleOf(::SecurityService)
     singleOf(::UserPreferenceService)
+    singleOf(::ChatEventService)
+    singleOf(::MessageEventService)
+    singleOf(::UserEventService)
 }

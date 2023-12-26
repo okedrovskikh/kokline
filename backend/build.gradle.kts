@@ -11,18 +11,23 @@ val jedisVersion: String by project
 val kloggingVersion: String by project
 
 plugins {
-    kotlin("jvm")
+    kotlin("jvm") version "1.9.10"
     id("io.ktor.plugin") version "2.3.4"
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
 }
+
+group = "kek.team"
+version = "1.0.0-SNAPSHOT"
 
 application {
     mainClass = "kek.team.kokline.ApplicationMainKt"
 }
 
-dependencies {
-    implementation(project(":library"))
+repositories {
+    mavenCentral()
+}
 
+dependencies {
     implementation("io.ktor:ktor-server-auth-jvm")
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-sessions-jvm")
@@ -35,6 +40,7 @@ dependencies {
     implementation("io.ktor:ktor-server-host-common-jvm:2.3.4")
     implementation("io.ktor:ktor-server-status-pages-jvm:2.3.4")
     implementation("io.ktor:ktor-server-double-receive-jvm:2.3.4")
+    implementation("io.ktor:ktor-server-cors:2.3.4")
     testImplementation("io.ktor:ktor-server-tests-jvm")
 
     implementation("com.zaxxer:HikariCP:$hikaricpVersion")
@@ -50,5 +56,9 @@ dependencies {
 
     implementation(group = "redis.clients", name = "jedis", version = jedisVersion)
 
+    implementation(group = "ch.qos.logback", name = "logback-classic", version = logbackVersion)
     implementation(group = "io.github.oshai", name = "kotlin-logging", version = kloggingVersion)
+
+    testImplementation(group = "org.jetbrains.kotlin", name = "kotlin-test-junit", version = kotlinVersion)
+    testImplementation(group = "io.kotest", name = "kotest-assertions-core", version = "4.6.2")
 }

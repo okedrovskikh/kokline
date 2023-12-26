@@ -18,6 +18,7 @@ import kek.team.kokline.security.sessions.basicSession
 import kek.team.kokline.security.sessions.chatDeleteSession
 import kek.team.kokline.security.sessions.chatEditSession
 import kek.team.kokline.security.sessions.authSession
+import kek.team.kokline.service.user.UserService
 import kek.team.kokline.support.utils.authAndCallMethod
 import kek.team.kokline.support.utils.getId
 import org.koin.ktor.ext.inject
@@ -25,6 +26,7 @@ import org.koin.ktor.ext.inject
 fun Route.chatRouting() {
 
     val service: ChatService by inject<ChatService>()
+    val userService: UserService by inject<UserService>()
 
     route("/chats") {
         authenticate(basicSession) {
@@ -38,11 +40,23 @@ fun Route.chatRouting() {
                 val chat = service.getById(id)
                 call.respond(chat)
             }
+            authAndCallMethod(::get, "") {
+                val id = authSession().id
+                val chats = userService.getChatsById(id)
+                call.respond(chats)
+            }
+            authAndCallMethod(::post, "/leave/{id?}") {
+                val userId = authSession().id
+                val id = call.getId()
+                service.leaveChat(userId, id)
+                call.respond(HttpStatusCode.OK)
+            }
         }
         authenticate(chatEditSession) {
-            authAndCallMethod(::put, "") {
+            authAndCallMethod(::put, "/{id?}") {
                 val chat = call.receive<ChatEditRequest>()
-                service.edit(authSession().id, chat)
+                val id = call.getId()
+                service.edit(authSession().id, id, chat)
                 call.respond(HttpStatusCode.OK)
             }
         }

@@ -1,0 +1,140 @@
+.settings {
+    min-width: 300px;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        align-self: stretch;
+        justify-content: space-between;
+
+        h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 500;
+            color: #FFF;
+        }
+
+        svg {
+            cursor: pointer;
+            transition: 100ms;
+
+            &:hover {
+                opacity: 0.6;
+            }
+        }
+    }
+
+    &__user {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        align-items: center;
+
+        h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 500;
+            color: #FFF;
+        }
+
+        span {
+            font-size: 14px;
+            font-weight: 400;
+            color: rgb(255 255 255 / 60%);
+        }
+    }
+
+    &__form {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        align-items: flex-start;
+
+        &__label {
+            margin-left: 0;
+            font-size: 12px;
+            font-weight: 400;
+            color: rgb(255 255 255 / 80%);
+        }
+
+        &__input-wrapper {
+            display: flex;
+            gap: 4px;
+            align-items: flex-start;
+        }
+
+        &__input {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+
+            width: 100%;
+            min-width: 240px;
+            padding: 8px 16px;
+
+            font-size: 14px;
+            font-weight: 400;
+            color: #FFF;
+
+            background: #1A191E;
+            border: none;
+            border-radius: 24px;
+            outline: none;
+            caret-color: #FFF;
+
+            &::placeholder {
+                color: rgb(255 255 255 / 40%);
+            }
+
+            &:focus {
+                box-shadow: inset 0 0 0 2px #7260BC;
+
+                &::placeholder {
+                    color: rgb(255 255 255 / 20%);
+                }
+            }
+        }
+
+        &__button {
+            cursor: pointer;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 8px 16px;
+
+            background: #453A71;
+            border: none;
+            border-radius: 32px;
+
+            transition: 100ms;
+
+            &:hover {
+                opacity: 0.8;
+            }
+        }
+    }
+
+    &__footer {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        &__item {
+            cursor: pointer;
+
+            display: flex;
+            gap: 4px;
+            align-items: center;
+
+            color: #C54F4F;
+
+            transition: 100ms;
+
+            &:hover {
+                opacity: 0.8;
+            }
+        }
+    }
+}

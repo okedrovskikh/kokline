@@ -1,27 +1,33 @@
 package kek.team.kokline.persistence.repositories
 
+import kek.team.kokline.factories.newOrSupportedTransaction
+import kek.team.kokline.models.MessagePayload
 import kek.team.kokline.persistence.entities.ChatEntity
 import kek.team.kokline.persistence.entities.MessageEntity
 import kek.team.kokline.persistence.entities.MessageTable
-import kek.team.kokline.factories.newOrSupportedTransaction
-import kek.team.kokline.models.MessagePayload
+import kek.team.kokline.persistence.entities.UserEntity
+import kek.team.kokline.support.utils.toSizedCollection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jetbrains.exposed.sql.SizedIterable
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.update
+import java.time.LocalDateTime
 
 class MessageRepository {
 
-    suspend fun create(payload: MessagePayload, chat: ChatEntity): MessageEntity = newOrSupportedTransaction {
-        withContext(Dispatchers.IO) {
-            MessageEntity.new {
-                this.payload = payload
-                this.chat = chat
+    suspend fun create(payload: MessagePayload, chat: ChatEntity, timestamp: LocalDateTime, sender: UserEntity): MessageEntity =
+        newOrSupportedTransaction {
+            withContext(Dispatchers.IO) {
+                MessageEntity.new {
+                    this.payload = payload
+                    this.chat = chat
+                    this.timestamp = timestamp
+                    this.sender = sender
+                }
             }
         }
-    }
 
     suspend fun findAllByChatId(id: Long): SizedIterable<MessageEntity> = newOrSupportedTransaction {
         withContext(Dispatchers.IO) { MessageEntity.find { MessageTable.chatId eq id } }
@@ -32,7 +38,10 @@ class MessageRepository {
         currentPageNumber: Long,
         pageSize: Int,
     ): SizedIterable<MessageEntity> = newOrSupportedTransaction {
-        withContext(Dispatchers.IO) { MessageEntity.find { MessageTable.chatId eq chatId }.limit(pageSize, pageSize * currentPageNumber) }
+        withContext(Dispatchers.IO) {
+            MessageEntity.find { MessageTable.chatId eq chatId }.reversed().toSizedCollection()
+                .limit(pageSize, pageSize * currentPageNumber)
+        }
     }
 
     suspend fun findById(id: Long): MessageEntity? =

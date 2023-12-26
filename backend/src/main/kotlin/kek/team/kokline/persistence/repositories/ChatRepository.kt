@@ -8,12 +8,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class ChatRepository {
-
-    suspend fun create(name: String, users: Collection<Long>): ChatEntity = newOrSupportedTransaction {
+    suspend fun create(name: String, users: Collection<Long>, avatarUrl: String?): ChatEntity = newOrSupportedTransaction {
         withContext(Dispatchers.IO) {
             ChatEntity.new {
                 this.name = name
                 this.users = users.map { UserEntity[it] }.toSizedCollection()
+                this.avatarUrl = avatarUrl
             }
         }
     }

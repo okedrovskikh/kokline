@@ -1,0 +1,135 @@
+.sidebar {
+    resize: horizontal;
+
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    align-items: flex-start;
+    align-self: stretch;
+
+    width: 320px;
+    min-width: 320px;
+    height: 100%;
+
+    background: #15141A;
+
+    &::after {
+        cursor: ew-resize;
+        content: "";
+
+        position: absolute;
+        right: 0;
+
+        width: 8px;
+        height: 100%;
+
+        background: none;
+    }
+
+    &__search {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        align-self: stretch;
+
+        margin: 8px;
+        padding: 8px;
+
+        background: #1A191E;
+        border: none;
+        border-radius: 24px;
+
+        & > svg {
+            opacity: 0.4;
+        }
+
+        & > input {
+            flex-grow: 1;
+
+            font-size: 14px;
+            color: #fff;
+
+            background: none;
+            border: none;
+            outline: none;
+        }
+    }
+
+    &__chats {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        align-items: flex-start;
+        align-self: stretch;
+
+        padding: 0 8px;
+    }
+
+    &__profile {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+
+        overflow: hidden;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        align-self: stretch;
+        justify-content: space-between;
+
+        padding: 8px 16px;
+
+        background: #1A191E;
+
+        &__avatar {
+            user-select: none;
+
+            width: 42px;
+            height: 42px;
+
+            object-fit: cover;
+            border-radius: 42px;
+        }
+
+        &__info {
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            align-items: flex-start;
+            align-self: stretch;
+            justify-content: center;
+
+            &__name {
+                font-size: 14px;
+                font-weight: 500;
+                color: #fff;
+            }
+
+            &__username {
+                font-size: 12px;
+                font-weight: 300;
+                color: rgb(255 255 255 / 60%);
+            }
+        }
+
+        & > svg {
+            cursor: pointer;
+
+            width: 20px;
+            height: 20px;
+
+            opacity: 0.4;
+            
+            transition: 100ms;
+
+            &:hover {
+                transform: rotate(90deg);
+                opacity: 1;
+            }
+        }
+    }
+}

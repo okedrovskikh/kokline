@@ -20,7 +20,9 @@ import kek.team.kokline.security.sessions.authSession
 import kek.team.kokline.support.utils.authAndCallMethod
 import kek.team.kokline.support.utils.loggingCoroutineExceptionHandler
 import kek.team.kokline.support.utils.receiveDeserialized
+import kek.team.kokline.support.utils.second
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
@@ -70,12 +72,13 @@ fun Route.chatRouting() {
 
                 supervisorScope {
                     while (consumer.isActive()) {
-                        val message = consumer.getMessage()
+                        val receivedMessage = consumer.getMessage()
                         launch(loggingHandler) {
-                            val ids = message.split(":")
+                            val ids = receivedMessage.message.split(":")
 
                             if (chatId == ids.first().toLong()) {
-                                val message = messageService.getById(ids[1].toLong())
+                                delay(100) // костыль чтоб не писать двуфазный коммит или сагу, при задержках записи в бд может не работать
+                                val message = messageService.getById(ids.second().toLong())
                                 sendSerialized(message)
                             }
                         }

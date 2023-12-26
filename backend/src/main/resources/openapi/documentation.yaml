@@ -6,16 +6,6 @@ info:
 servers:
 - url: "https://kokline"
 paths:
-  /api/v1/auth/login:
-    post:
-      description: ""
-      responses:
-        "202":
-          description: "Accepted"
-          content:
-            '*/*':
-              schema:
-                type: "object"
   /api/v1/auth/logout:
     post:
       description: ""
@@ -26,152 +16,6 @@ paths:
             '*/*':
               schema:
                 type: "object"
-  /api/v1/messages:
-    put:
-      description: ""
-      requestBody:
-        content:
-          '*/*':
-            schema:
-              $ref: "#/components/schemas/MessageEditRequest"
-        required: true
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "object"
-    delete:
-      description: ""
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "object"
-    get:
-      description: ""
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Message"
-  /api/v1/messages/{id}:
-    delete:
-      description: ""
-      parameters:
-      - name: "id"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "object"
-    get:
-      description: ""
-      parameters:
-      - name: "id"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Message"
-  /api/v1/messages/fromChat/{id}:
-    get:
-      description: ""
-      parameters:
-      - name: "page"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "pageSize"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "id"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/Message"
-  /api/v1/messages/fromChat:
-    get:
-      description: ""
-      parameters:
-      - name: "page"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      - name: "pageSize"
-        in: "query"
-        required: false
-        schema:
-          type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/Message"
-  /api/v1/messages/fromChat/{id}/all:
-    get:
-      description: ""
-      parameters:
-      - name: "id"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/Message"
-  /api/v1/messages/fromChat/all:
-    get:
-      description: ""
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/Message"
   /api/v1/users:
     post:
       description: ""
@@ -184,31 +28,6 @@ paths:
       responses:
         "201":
           description: "Created"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/User"
-    get:
-      description: ""
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/User"
-  /api/v1/users/{id}:
-    get:
-      description: ""
-      parameters:
-      - name: "id"
-        in: "path"
-        required: true
-        schema:
-          type: "string"
-      responses:
-        "200":
-          description: "OK"
           content:
             '*/*':
               schema:
@@ -268,53 +87,16 @@ paths:
                 type: "string"
 components:
   schemas:
-    ErrorResponse:
-      type: "object"
-      properties:
-        message:
-          type: "string"
-        innerErrors:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/ErrorResponse"
-    MessagePayload:
-      type: "object"
-      properties:
-        text:
-          type: "string"
-        binary:
-          type: "array"
-          items:
-            type: "string"
-            format: "byte"
-        messageRefId:
-          type: "integer"
-          format: "int64"
-    MessageEditRequest:
-      type: "object"
-      properties:
-        id:
-          type: "integer"
-          format: "int64"
-        payload:
-          $ref: "#/components/schemas/MessagePayload"
-    Message:
-      type: "object"
-      properties:
-        id:
-          type: "integer"
-          format: "int64"
-        payload:
-          $ref: "#/components/schemas/MessagePayload"
-        chatId:
-          type: "integer"
-          format: "int64"
     UserCreateRequest:
       type: "object"
       properties:
         nickname:
           type: "string"
         credits:
+          type: "string"
+        name:
+          type: "string"
+        avatarUrl:
           type: "string"
     User:
       type: "object"
@@ -323,6 +105,10 @@ components:
           type: "integer"
           format: "int64"
         nickname:
+          type: "string"
+        name:
+          type: "string"
+        avatarUrl:
           type: "string"
         chats:
           type: "array"

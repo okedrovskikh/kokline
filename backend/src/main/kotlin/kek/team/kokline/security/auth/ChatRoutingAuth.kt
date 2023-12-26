@@ -16,6 +16,7 @@ import kek.team.kokline.security.sessions.chatDeleteSession
 import kek.team.kokline.security.sessions.chatEditSession
 import kek.team.kokline.security.sessions.chatReadSession
 import kek.team.kokline.service.security.SecurityService
+import kek.team.kokline.support.utils.getId
 import kek.team.kokline.support.utils.getIdOrNull
 import org.koin.ktor.ext.inject
 
@@ -26,8 +27,7 @@ fun Application.configureChatApiAuth() {
     authentication {
         session<AuthSession>(chatEditSession) {
             validate { session ->
-                val request = receive<RequestWithId>()
-                if (securityService.validate(session, Preference(request.id, CHAT_EDIT))) {
+                if (securityService.validate(session, Preference(this.getId(), CHAT_EDIT))) {
                     session
                 } else {
                     null

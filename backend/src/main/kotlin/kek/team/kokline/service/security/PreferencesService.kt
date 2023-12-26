@@ -34,7 +34,7 @@ class PreferencesService(private val repository: PreferencesRepository, private 
         userId: Long,
         resourceId: Long,
         actionPrefix: String, // need cause actionPrefix + resourceId is unique identifier for resource type
-    ): List<PreferenceDescription> = dbQuery {
+    ): List<PreferenceDescription> = newOrSupportedTransaction {
         val preferencesByActionMap = repository.findAllWithResourceByOwnerAndResource(userId, resourceId, actionPrefix).groupByAction()
         preferencesByActionMap.map { (key, value) -> mapper.mapToDescription(key, value) }
     }
