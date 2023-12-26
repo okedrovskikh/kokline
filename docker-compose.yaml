@@ -8,13 +8,11 @@ networks:
 
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: ./backend/Dockerfile
+    build: ./backend
     container_name: backend
     restart: on-failure
     environment:
-      POSTGRES_URL: jdbc:postgresql://localhost:5432/kokline
+      POSTGRES_URL: jdbc:postgresql://postgres:5432/kokline
       REDIS_DNS_NAME: redis
     ports:
       - 8080:8080
